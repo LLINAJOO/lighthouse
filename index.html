@@ -49,7 +49,7 @@ html,body{height:100%;margin:0;background:var(--sea);color:var(--ink);overflow:h
 .btn.primary:hover{background:#ffd683}
 #prompt{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:6px 14px;font-size:16px;white-space:nowrap}
 #prompt b{color:var(--lamp);margin-right:8px}
-#toasts{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none;z-index:5}
+#toasts{z-index:31!important;position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:grid;gap:6px;justify-items:center;pointer-events:none;z-index:5}
 .toast{padding:5px 12px;font-size:15px;animation:tin .25s ease-out;display:flex;gap:8px;align-items:center}
 .toast canvas{width:24px;height:24px;image-rendering:pixelated}
 @keyframes tin{from{transform:translateY(-8px);opacity:0}}
@@ -96,7 +96,7 @@ html,body{height:100%;margin:0;background:var(--sea);color:var(--ink);overflow:h
 .entry.rec.ok{color:#bfe3d6}
 .entry.rec.ok b::after{content:" · можно сделать";color:#8fd0b9}
 #panel .card{width:min(700px,calc(100vw - 32px))}
-#dev{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(64px + env(safe-area-inset-top,0px));z-index:8;width:min(300px,calc(100vw - 32px));max-height:calc(100vh - 150px);overflow:auto;background:rgba(14,20,32,.92);border:2px dashed #e86a5a;padding:8px 10px;font-size:12px;box-sizing:border-box}
+#dev{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(64px + env(safe-area-inset-top,0px));z-index:30;width:min(300px,calc(100vw - 32px));max-height:calc(100vh - 150px);overflow:auto;background:rgba(14,20,32,.92);border:2px dashed #e86a5a;padding:8px 10px;font-size:12px;box-sizing:border-box}
 #dev.min{width:auto}
 #dev .dhead{display:flex;gap:6px;align-items:center}
 #dev .dhead b{color:#e86a5a;letter-spacing:.08em;text-transform:uppercase;margin-right:auto}
@@ -2856,7 +2856,7 @@ const DEV = {
   render() {
     const box = $('#devBody'); box.innerHTML = ''; $('#dev').classList.toggle('min', this.min);
     if (this.min) return;
-    const row = (title, items) => { const r = document.createElement('div'); r.className = 'drow'; const t = document.createElement('span'); t.textContent = title; r.appendChild(t); const g = document.createElement('div'); items.forEach(([l, f, on]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = l; if (on) b.className = 'on'; b.onclick = () => { if (G.mode !== 'play') return toast('Сначала начните смену'); f(); this.render(); }; g.appendChild(b); }); r.appendChild(g); box.appendChild(r); };
+    const row = (title, items) => { const r = document.createElement('div'); r.className = 'drow'; const t = document.createElement('span'); t.textContent = title; r.appendChild(t); const g = document.createElement('div'); items.forEach(([l, f, on]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = l; if (on) b.className = 'on'; b.onclick = () => { if (G.mode === 'title' && title === 'День') { startPlay(null); setTimeout(() => devDay(d0(l)), 3300); return; } if (G.mode !== 'play') return toast('Сначала начните смену или выберите день'); f(); this.render(); }; g.appendChild(b); }); r.appendChild(g); box.appendChild(r); };
     row('День', [1, 2, 3, 4, 5, 6, 7].map(d => [String(d), () => devDay(d), S.day === d]));
     row('Время', [['06:00', 360], ['08:00', 480], ['10:00', 600], ['12:00', 720], ['16:30', 990], ['17:00', 1020], ['19:00', 1140], ['21:00', 1260], ['23:30', 1410]].map(([l, m]) => [l, () => { S.min = m; G.trig = G.trig || {}; }]));
     row('Погода', [['ясно', 'sunny'], ['ветер', 'windy'], ['дождь', 'rain'], ['гроза', 'storm'], ['туман', 'fog'], ['облака', 'cloudy']].map(([l, w]) => [l, () => { S.weather = w; UI.hud(); }, S.weather === w]));
@@ -2865,6 +2865,7 @@ const DEV = {
     row('Дела', [['выполнить все', () => { S.tasks.forEach(t => { if (!t.done) { t.c = t.n || 0; progress(t.id, t.n || 1); } }); UI.tasks(); }], ['зажечь маяк', () => { S.lampLit = true; S.power = true; }], ['кот: оставить', () => { S.flags.cat = 'kept'; S.flags.catName = S.flags.catName || 'Рыжик'; S.flags.catDay = S.flags.catDay || S.day; catNewDay(); if (S.min >= 480 && S.min < 990) { CAT.phase = 'wander'; CAT.map = 'island'; CAT.x = WORLD.lh.x + 10; CAT.y = WORLD.lh.y + 28; CAT.z = 0; } UI.tasks(); }], ['кот: сброс', () => { delete S.flags.cat; catNewDay(); UI.tasks(); }]]);
   },
 };
+const d0 = l => +l;
 function devDay(d) {
   closeScope(); if (DOC_ON) closeDoc(); MENU.hide(); UI.close(); P.sit = null; P.fish = null; P.act = null; P.carry = null;
   $('#dialog').hidden = true; DLG.q = []; DLG.cur = null; DLG.done = null;
