@@ -40,7 +40,7 @@ function portraitSprite(look, talk, blink) {
   const hx = 24, hy = 22 + fy, rx = kid ? 11 : 10.5, ry = kid ? 11 : 12.5;
   oval(hx, hy, rx, ry, skin);
   oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => x > hx + 4); // shade on the right
-  if (!kid) { for (let x = 15; x < 33; x++) if (x < 19 || x > 29) px(x, hy + ry - 2, skS); }
+  if (!kid) { const jy = Math.floor(hy + ry - 2); for (let x = 15; x < 33; x++) { const dx = (x + .5 - hx) / rx, dy = (jy + .5 - hy) / ry; if ((x < 19 || x > 29) && dx * dx + dy * dy <= 1) px(x, jy, skS); } } // jaw shade, only inside the face
   // ears
   rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(35, hy - 1, 2, 5, skS); px(36, hy, skD);
   // ---- eyes
