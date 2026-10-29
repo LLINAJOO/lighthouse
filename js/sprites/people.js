@@ -62,7 +62,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     else { const s = step; r(-1 + s, tt, 2, 3, coatS); r(-1 + s, tt + 3, 2, 1, L.skin); }
   }
   // ---- head (8 wide, 7 tall)
-  r(-3, ht, 6, 1, L.skin); r(-4, ht + 1, 8, 5, L.skin); r(-3, ht + 6, 6, 1, L.skin); r(-3, ht + 6, 6, 1, skinS);
+  r(-3, ht, 6, 1, L.skin); r(-4, ht + 1, 8, 5, L.skin); r(-3, ht + 6, 6, 1, fem ? L.skin : skinS); // chin shade only on men: on women it read as stubble
   r(-2, tt - 1, 4, 1, OUTL);
   const eye = '#221c24', lip = fem ? '#d0605e' : '#9a4c46', blush = fem ? '#f08c8c' : '#e8a090';
   if (back) {
