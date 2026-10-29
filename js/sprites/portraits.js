@@ -34,12 +34,12 @@ function portraitSprite(look, talk, blink) {
   }
   // ---- hair behind the head (long styles)
   if (P.hair === 'pony') { oval(36, 20, 4, 6, hair); rect(35, 22, 4, 12, hair); rect(36, 30, 3, 4, hS); px(34, 17, L.tie || '#3c6db0'); px(35, 17, L.tie || '#3c6db0'); }
-  if (P.hair === 'braids') { for (const bx of [12, 33]) { for (let y = 26; y < 44; y += 3) { rect(bx, y + fy, 4, 2, hair); rect(bx + 1, y + 2 + fy, 2, 1, hS); } rect(bx, 44 + fy - 2, 4, 2, L.tie || '#c8303b'); } }
+  if (P.hair === 'braids') { for (const bx of [12, 32]) { for (let y = 26; y < 44; y += 3) { rect(bx, y + fy, 4, 2, hair); rect(bx + 1, y + 2 + fy, 2, 1, hS); } rect(bx, 44 + fy - 2, 4, 2, L.tie || '#c8303b'); } }
   if (P.hair === 'braid') { for (let y = 28; y < 46; y += 3) { rect(32, y, 4, 2, hair); rect(33, y + 2, 2, 1, hS); } rect(32, 45, 4, 2, L.tie || '#c8443a'); }
   // ---- head
   const hx = 24, hy = 22 + fy, rx = kid ? 10 : 10.5, ry = kid ? 12.5 : 12.5;
   oval(hx, hy, rx, ry, skin);
-  oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => x > hx + 4); // shade on the right
+  oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => { const dx = (x + .5 - hx) / rx, dy = (y + .5 - hy) / ry; return x > hx + 4 && dx * dx + dy * dy <= 1; }); // shade on the right, kept inside the face
   if (!kid) { const jy = Math.floor(hy + ry - 2); for (let x = 15; x < 33; x++) { const dx = (x + .5 - hx) / rx, dy = (jy + .5 - hy) / ry; if ((x < 19 || x > 29) && dx * dx + dy * dy <= 1) px(x, jy, skS); } } // jaw shade, only inside the face
   // ears
   rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(34, hy - 1, 2, 5, skS); px(35, hy, skD);
