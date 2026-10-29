@@ -42,9 +42,9 @@ function portraitSprite(look, talk, blink) {
   oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => x > hx + 4); // shade on the right
   if (!kid) { const jy = Math.floor(hy + ry - 2); for (let x = 15; x < 33; x++) { const dx = (x + .5 - hx) / rx, dy = (jy + .5 - hy) / ry; if ((x < 19 || x > 29) && dx * dx + dy * dy <= 1) px(x, jy, skS); } } // jaw shade, only inside the face
   // ears
-  rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(35, hy - 1, 2, 5, skS); px(36, hy, skD);
+  rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(34, hy - 1, 2, 5, skS); px(35, hy, skD);
   // ---- eyes
-  const ey = hy + (kid ? 1 : 0), eyeL = 17, eyeR = 28;
+  const ey = hy + (kid ? 1 : 0), eyeL = 16, eyeR = 28;
   const eye = (x) => {
     if (blink) { rect(x, ey + 1, 4, 1, '#3a2a26'); return; }
     rect(x, ey, 4, 3, '#ffffff'); rect(x + 1, ey, 2, 3, '#3a2a26'); px(x + 1, ey, '#ffffff'); px(x + 2, ey + 2, '#5a4036');
@@ -54,26 +54,26 @@ function portraitSprite(look, talk, blink) {
   eye(eyeL); eye(eyeR);
   // brows
   const bc = P.brows === 'bushy' ? '#f2f2f2' : shade(hair === '#e8e8e8' ? '#9a9a9a' : hair, .8);
-  if (P.brows === 'stern') { rect(16, ey - 4, 5, 1, bc); px(20, ey - 3, bc); rect(28, ey - 4, 5, 1, bc); px(27, ey - 3, bc); }
-  else if (P.brows === 'bushy') { rect(15, ey - 4, 6, 2, bc); rect(27, ey - 4, 6, 2, bc); }
-  else if (fem || kid) { for (const bx of [16, 28]) { px(bx, ey - 3, bc); rect(bx + 1, ey - 4, 3, 1, bc); px(bx + 4, ey - 3, bc); } }
-  else { rect(16, ey - 3, 5, 1, bc); rect(28, ey - 3, 5, 1, bc); }
+  if (P.brows === 'stern') { rect(15, ey - 4, 5, 1, bc); px(19, ey - 3, bc); rect(28, ey - 4, 5, 1, bc); px(28, ey - 3, bc); }
+  else if (P.brows === 'bushy') { rect(14, ey - 4, 6, 2, bc); rect(28, ey - 4, 6, 2, bc); }
+  else if (fem || kid) { for (const bx of [15, 28]) { px(bx, ey - 3, bc); rect(bx + 1, ey - 4, 3, 1, bc); px(bx + 4, ey - 3, bc); } }
+  else { rect(15, ey - 3, 5, 1, bc); rect(28, ey - 3, 5, 1, bc); }
   // nose
   if (fem || kid) { px(24, ey + 5, skS); px(23, ey + 5, skS); }
-  else { rect(24, ey + 2, 1, 4, skS); rect(23, ey + 5, 3, 1, skD); px(22, ey + 5, skS); }
+  else { rect(24, ey + 2, 1, 3, skS); rect(23, ey + 5, 2, 1, skD); px(22, ey + 5, skS); px(25, ey + 5, skS); }
   // cheeks, freckles
-  rect(15, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#e8b0a0'); rect(30, ey + 5, 3, 1, fem || kid ? '#e89090' : '#d8a090');
-  if (P.freckles) [[16, ey + 4], [18, ey + 5], [30, ey + 4], [32, ey + 5], [17, ey + 6]].forEach(([x, y]) => px(x, y, shade(skin, .78)));
-  if (P.wrinkles) { px(15, ey + 1, skD); px(33, ey + 1, skD); if (P.wrinkles > 1) { rect(20, ey - 6, 8, 1, skS); rect(21, ey - 8, 6, 1, skS); } }
+  rect(14, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#e8b0a0'); rect(30, ey + 5, 3, 1, fem || kid ? '#e89090' : '#d8a090');
+  if (P.freckles) [[15, ey + 4], [17, ey + 5], [32, ey + 4], [30, ey + 5], [16, ey + 6], [31, ey + 6]].forEach(([x, y]) => px(x, y, shade(skin, .78)));
+  if (P.wrinkles) { px(14, ey + 1, skD); px(33, ey + 1, skD); if (P.wrinkles > 1) { rect(20, ey - 6, 8, 1, skS); rect(21, ey - 8, 6, 1, skS); } }
   if (P.stubble) for (let x = 18; x < 31; x += 2) for (let y = ey + 9; y < ey + 11; y++) if (hash(x, y) > .7) px(x, y, shade(skin, .9));
   // mouth
   const my = ey + 8;
-  if (talk) { rect(22, my, 5, 2, '#5a2a26'); rect(23, my + 1, 3, 1, '#c8605a'); }
-  else { rect(22, my, 5, 1, fem || kid ? '#c8605a' : '#9a4c46'); if (fem) px(24, my + 1, '#e08a84'); }
+  if (talk) { rect(22, my, 4, 2, '#5a2a26'); rect(23, my + 1, 2, 1, '#c8605a'); }
+  else { rect(22, my, 4, 1, fem || kid ? '#c8605a' : '#9a4c46'); if (fem) rect(23, my + 1, 2, 1, '#e08a84'); }
   // beard and mustache
-  if (P.beard === 'big') { oval(24, my + 4, 11, 8, L.beard, (x, y) => y >= my - 1); oval(24, my + 4, 9, 6, '#ffffff', (x, y) => y >= my + 3 && x < 24); rect(20, my - 1, 9, 2, '#e8e8e8'); if (talk) { rect(22, my + 1, 5, 2, '#5a2a26'); } for (let i = 0; i < 5; i++) px(16 + i * 4, my + 8 + (i % 2), '#d8d8d8'); }
-  if (P.beard === 'trim') { for (let y = my - 2; y < my + 6; y++) for (let x = 14; x < 35; x++) { const dx = (x + .5 - 24) / 10.5, dy = (y + .5 - (my - 2)) / 8; if (dx * dx + dy * dy <= 1 && y >= ey + 6) px(x, y, L.beard); } rect(21, my - 1, 7, 1, shade(L.beard, .8)); if (talk) rect(22, my, 5, 2, '#5a2a26'); else rect(22, my, 5, 1, '#9a4c46'); }
-  if (P.mustache) { rect(20, my - 2, 9, 2, L.mustache); px(19, my - 1, L.mustache); px(29, my - 1, L.mustache); }
+  if (P.beard === 'big') { oval(24, my + 4, 11, 8, L.beard, (x, y) => y >= my - 1); oval(24, my + 4, 9, 6, '#ffffff', (x, y) => y >= my + 3 && x < 24); rect(20, my - 1, 8, 2, '#e8e8e8'); if (talk) { rect(22, my + 1, 4, 2, '#5a2a26'); } for (let i = 0; i < 5; i++) px(16 + i * 4, my + 8 + (i % 2), '#d8d8d8'); }
+  if (P.beard === 'trim') { for (let y = my - 2; y < my + 6; y++) for (let x = 14; x < 35; x++) { const dx = (x + .5 - 24) / 10.5, dy = (y + .5 - (my - 2)) / 8; if (dx * dx + dy * dy <= 1 && y >= ey + 6) px(x, y, L.beard); } rect(21, my - 1, 6, 1, shade(L.beard, .8)); if (talk) rect(22, my, 4, 2, '#5a2a26'); else rect(22, my, 4, 1, '#9a4c46'); }
+  if (P.mustache) { rect(20, my - 2, 8, 2, L.mustache); px(19, my - 1, L.mustache); px(28, my - 1, L.mustache); }
   // ---- hair on the head
   const top = hy - ry;
   switch (P.hair) {
@@ -88,12 +88,12 @@ function portraitSprite(look, talk, blink) {
   // ---- hats
   const hc = L.hatC, hcS = hc ? shade(hc, .8) : null, hcL = hc ? shade(hc, 1.15) : null;
   switch (L.hat) {
-    case 'beanie': oval(24, top + 5, 12.5, 8, hc, (x, y) => y < top + 7); rect(12, top + 5, 25, 4, hcS); for (let x = 13; x < 36; x += 2) rect(x, top + 5, 1, 4, shade(hc, .7)); for (let x = 15; x < 34; x += 3) px(x, top, hcL); oval(24, top - 4, 3, 2.5, '#f2e6cc'); px(23, top - 5, '#ffffff'); break;
+    case 'beanie': oval(24, top + 5, 12.5, 8, hc, (x, y) => y < top + 7); rect(12, top + 5, 24, 4, hcS); for (let x = 13; x < 35; x += 2) rect(x, top + 5, 1, 4, shade(hc, .7)); for (let x = 15; x < 34; x += 3) px(x, top, hcL); oval(24, top - 4, 3, 2.5, '#f2e6cc'); px(23, top - 5, '#ffffff'); break;
     case 'souwester': oval(24, top + 3, 10, 7, hc, (x, y) => y < top + 7); rect(5, top + 6, 38, 3, hc); rect(5, top + 8, 38, 1, hcS); rect(3, top + 8, 4, 2, hc); rect(41, top + 8, 4, 2, hcS); rect(14, top + 3, 20, 1, hcL); break;
-    case 'cap': oval(24, top + 3, 12, 6, hc, (x, y) => y < top + 6); rect(12, top + 4, 25, 3, hc); rect(12, top + 6, 25, 1, hcS); rect(13, top + 7, 20, 2, '#1a3358'); rect(14, top + 9, 16, 1, '#13284a'); rect(22, top, 4, 3, '#e8c55a'); px(23, top + 1, '#c49412'); break;
+    case 'cap': oval(24, top + 3, 12, 6, hc, (x, y) => y < top + 6); rect(12, top + 4, 24, 3, hc); rect(12, top + 6, 24, 1, hcS); rect(13, top + 7, 20, 2, '#1a3358'); rect(14, top + 9, 16, 1, '#13284a'); rect(22, top, 4, 3, '#e8c55a'); rect(23, top + 1, 2, 1, '#c49412'); break;
     case 'beret': oval(23, top + 2, 14, 5, hc); oval(23, top + 4, 13, 2.5, hcS, (x, y) => y > top + 4); rect(22, top - 4, 2, 2, hc); px(15, top, hcL); px(16, top, hcL); break;
-    case 'peaked': rect(12, top - 1, 25, 6, hc); rect(10, top - 3, 29, 3, hc); rect(10, top - 3, 29, 1, hcL); rect(12, top + 5, 25, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(22, top, 4, 3, '#d4b14a'); px(23, top + 1, '#a8822e'); break;
-    case 'captain': rect(12, top - 1, 25, 6, hc); rect(10, top - 3, 29, 3, hc); rect(10, top - 3, 29, 1, '#ffffff'); rect(12, top + 5, 25, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(21, top + 1, 6, 3, '#d4b14a'); px(23, top + 2, '#1d1f24'); px(24, top + 2, '#1d1f24'); for (let i = 0; i < 4; i++) px(14 + i * 6, top + 6, '#d4b14a'); break;
+    case 'peaked': rect(12, top - 1, 24, 6, hc); rect(10, top - 3, 28, 3, hc); rect(10, top - 3, 28, 1, hcL); rect(12, top + 5, 24, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(22, top, 4, 3, '#d4b14a'); px(23, top + 1, '#a8822e'); break;
+    case 'captain': rect(12, top - 1, 24, 6, hc); rect(10, top - 3, 28, 3, hc); rect(10, top - 3, 28, 1, '#ffffff'); rect(12, top + 5, 24, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(21, top + 1, 6, 3, '#d4b14a'); px(23, top + 2, '#1d1f24'); px(24, top + 2, '#1d1f24'); for (let i = 0; i < 4; i++) px(14 + i * 6, top + 6, '#d4b14a'); break;
   }
   outlinePass(a, OUTL);
   PCACHE2.set(key, a); return a;

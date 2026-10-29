@@ -4,11 +4,11 @@
 const PCACHE = new Map(), PIDS = new WeakMap(); let PIDN = 0;
 const PW = 24, PH = 30, PAX = 12, PAY = 27;
 Object.assign(LOOKS.lida, { hdo: 'pony', tie: '#3c6db0' }); Object.assign(LOOKS.sonya, { hdo: 'braids', tie: '#c8303b' });
-Object.assign(LOOKS.wife, { hdo: 'bun' }); Object.assign(LOOKS.kid, { hdo: 'bob', tie: '#e2a33c' });
+Object.assign(LOOKS.wife, { hdo: 'bun' }); Object.assign(LOOKS.kid, { hdo: 'pig', tie: '#e8688a', shoe: '#b8333a', tiny: true, long: false, coat: '#f2c23a', coat2: '#d49a22', hair: '#8a5432' }); // Varya: yellow raincoat, red boots, two pigtails
 if (LOOKS.nyura) Object.assign(LOOKS.nyura, { hdo: 'braid', tie: '#c8443a' });
 function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
   const r = (x, y, w, h, col) => { if (col && w > 0 && h > 0) R(g, PAX + x, PAY + y, w, h, col); };
-  const sm = !!L.small, fem = !!(L.fem || L.long || L.hdo), legH = sm ? 1 : 2, tH = sm ? 4 : 5;
+  const sm = !!L.small, fem = !!(L.fem || L.long || L.hdo), legH = L.tiny ? 2 : sm ? 1 : 2, tH = L.tiny ? 3 : sm ? 4 : 5;
   const shoe = L.shoe || '#2e2622', skinS = shade(L.skin, .86), pantsS = shade(L.pants, .8), coatS = L.coat2, shirt = L.shirt || '#f2ece0';
   const side = dir === 2, back = dir === 3, front = dir === 0;
   const step = mv ? [0, 1, 0, -1][f] : 0;
@@ -36,7 +36,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
   // ---- torso
   const tw = side ? 5 : 6, tx = side ? -2 : -3, th = tH + (L.long && !sit ? 1 : 0);
   r(tx, tt, tw, th, L.coat); r(tx, tt + th - 1, tw, 1, coatS);
-  if (front) { r(-1, tt, 2, 1, shirt); if (!fem) r(0, tt + 2, 1, 1, coatS); }
+  if (front) { r(-1, tt, 2, 1, shirt); if (!fem) r(0, tt + 2, 1, 1, coatS); if (L.tiny) { r(-1, tt, 2, 1, coatS); r(0, tt + 1, 1, 1, '#8a5a1a'); r(0, tt + 3, 1, 1, '#8a5a1a'); } }
   else if (side) r(2, tt, 1, 1, shirt);
   if (L.scarf) {
     if (front) { r(-3, tt, 6, 1, L.scarf); r(0, tt + 1, 2, 2, L.scarf); r(0, tt + 2, 2, 1, shade(L.scarf, .8)); }
@@ -72,6 +72,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     else if (hdo === 'braid') { r(-1, ht + 6, 2, 5, hair); r(-1, ht + 7, 2, 1, hs); r(-1, ht + 9, 2, 1, hs); r(-1, ht + 11, 2, 1, tie); }
     else if (hdo === 'pony') { r(-1, ht + 4, 2, 5, hair); r(-1, ht + 4, 2, 1, tie); }
     else if (hdo === 'bob') r(-4, ht + 6, 8, 1, hair);
+    else if (hdo === 'pig') { for (const s of [-1, 1]) { const x = s < 0 ? -5 : 4; r(x, ht + 2, 1, 1, tie); r(s < 0 ? -7 : 5, ht + 2, 2, 2, hair); r(s < 0 ? -7 : 6, ht + 4, 1, 2, hs); } }
     if (hdo === 'bun') { r(-2, ht - 2, 4, 2, hair); r(-2, ht - 2, 2, 1, hl); }
   } else if (front) {
     r(-3, ht, 6, 1, hair); r(-4, ht + 1, 8, 1, hair); r(-3, ht + 1, 3, 1, hl);
@@ -84,6 +85,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
       if (hdo === 'bob') { r(-4, ht + 2, 8, 1, hair); r(-5, ht + 2, 1, 4, hair); r(4, ht + 2, 1, 4, hair); r(-4, ht + 6, 1, 1, hair); r(3, ht + 6, 1, 1, hair); }
       if (hdo === 'bun') { r(-2, ht - 2, 4, 2, hair); r(-2, ht - 2, 2, 1, hl); }
       if (hdo === 'pony') r(4, ht + 3, 1, 3, hair);
+      if (hdo === 'pig') { r(-3, ht + 2, 6, 1, hair); r(-5, ht + 2, 1, 1, tie); r(4, ht + 2, 1, 1, tie); r(-7, ht + 2, 2, 2, hair); r(5, ht + 2, 2, 2, hair); r(-7, ht + 4, 1, 2, hs); r(6, ht + 4, 1, 2, hs); r(-7, ht + 2, 1, 1, hl); }
     } else { r(-4, ht + 2, 2, 1, hair); r(1, ht + 2, 1, 1, hair); r(3, ht + 2, 1, 2, hair); r(-4, ht + 3, 1, 1, hair); }
     if (blink) { r(-2, ht + 4, 1, 1, eye); r(1, ht + 4, 1, 1, eye); } else { r(-2, ht + 3, 1, 2, eye); r(1, ht + 3, 1, 2, eye); }
     if (fem && !blink) { r(-3, ht + 3, 1, 1, eye); r(2, ht + 3, 1, 1, eye); }
@@ -101,6 +103,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
       if (hdo === 'pony') { r(-5, ht + 2, 1, 1, tie); r(-6, ht + 2, 2, 2, hair); r(-6, ht + 4, 1, 3, hair); }
       if (hdo === 'bob') { r(-4, ht + 5, 3, 2, hair); r(1, ht + 2, 2, 1, hair); }
       if (hdo === 'bun') { r(-5, ht, 3, 3, hair); r(-5, ht, 2, 1, hl); }
+      if (hdo === 'pig') { r(-5, ht + 2, 1, 1, tie); r(-7, ht + 2, 2, 2, hair); r(-7, ht + 4, 1, 2, hs); }
     } else { r(-4, ht + 2, 3, 3, hair); r(0, ht + 2, 2, 1, hair); }
     r(-1, ht + 3, 1, 2, skinS);
     if (blink) r(2, ht + 4, 1, 1, eye); else { r(2, ht + 3, 1, 2, eye); if (fem) r(3, ht + 3, 1, 1, eye); }
