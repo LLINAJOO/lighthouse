@@ -65,7 +65,7 @@ function portraitSprite(look, talk, blink) {
   { const cl = kid ? 15 : 14; rect(cl, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#e8b0a0'); rect(45 - cl, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#d8a090'); } // cheeks mirrored around x=24
   if (P.freckles) [[15, ey + 4], [17, ey + 5], [32, ey + 4], [30, ey + 5], [16, ey + 6], [31, ey + 6]].forEach(([x, y]) => px(x, y, shade(skin, .78)));
   if (P.wrinkles) { px(14, ey + 1, skD); px(33, ey + 1, skD); if (P.wrinkles > 1) { rect(20, ey - 6, 8, 1, skS); rect(21, ey - 8, 6, 1, skS); } }
-  if (P.stubble) for (let x = 18; x < 31; x += 2) for (let y = ey + 9; y < ey + 11; y++) if (hash(x, y) > .7) px(x, y, shade(skin, .9));
+  if (P.stubble) for (let x = 17; x < 31; x++) for (let y = ey + 9; y < ey + 11; y++) if (hash(Math.min(x, 47 - x), y) > .7) px(x, y, shade(skin, .9));
   // mouth
   const my = ey + 8;
   if (talk) { rect(22, my, 4, 2, '#5a2a26'); rect(23, my + 1, 2, 1, '#c8605a'); }
@@ -77,13 +77,13 @@ function portraitSprite(look, talk, blink) {
   // ---- hair on the head
   const top = hy - ry;
   switch (P.hair) {
-    case 'short': oval(24, top + 5, 11.5, 6, hair, (x, y) => y < top + 8); for (let x = 14; x < 34; x += 3) { px(x, top + 7, hair); px(x + 1, top + 8, hair); } rect(13, top + 6, 2, 8, hair); rect(34, top + 6, 2, 8, hS); px(16, top + 3, hL); px(17, top + 3, hL); break;
-    case 'oldwhite': rect(12, top + 7, 3, 10, hair); rect(34, top + 7, 3, 10, shade(hair, .85)); break;
-    case 'greyshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 7, hair); rect(34, top + 5, 2, 7, hS); px(13, top + 8, '#d8d8d8'); break;
-    case 'darkshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 8, hair); rect(34, top + 5, 2, 8, hS); break;
-    case 'pony': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 14; x < 22; x++) px(x, top + 8 + Math.round((22 - x) / 3), hair); rect(13, top + 6, 2, 11, hair); rect(34, top + 6, 2, 9, hS); px(17, top + 3, hL); px(18, top + 3, hL); break;
+    case 'short': oval(24, top + 5, 11.5, 6, hair, (x, y) => y < top + 8); for (let x = 14; x < 34; x += 3) { px(x, top + 7, hair); px(x + 1, top + 8, hair); } rect(13, top + 6, 2, 8, hair); rect(33, top + 6, 2, 8, hS); px(16, top + 3, hL); px(17, top + 3, hL); break;
+    case 'oldwhite': rect(12, top + 7, 3, 10, hair); rect(33, top + 7, 3, 10, shade(hair, .85)); break;
+    case 'greyshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 7, hair); rect(33, top + 5, 2, 7, hS); px(13, top + 8, '#d8d8d8'); break;
+    case 'darkshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 8, hair); rect(33, top + 5, 2, 8, hS); break;
+    case 'pony': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 14; x < 22; x++) px(x, top + 8 + Math.round((22 - x) / 3), hair); rect(13, top + 6, 2, 11, hair); rect(33, top + 6, 2, 11, hS); px(17, top + 3, hL); px(18, top + 3, hL); break;
     case 'braids': { oval(24, top + 6, 11.5, 7.5, hair, (x, y) => y < top + 8); for (let x = 14; x < 34; x++) { const d = Math.abs(x + .5 - 24), h = d < 2 ? 0 : Math.round(3 - d / 4); for (let y = top + 8; y < top + 8 + Math.max(0, h); y++) px(x, y, hair); } rect(13, top + 7, 2, 11, hair); rect(33, top + 7, 2, 11, hS); px(18, top + 3, hL); px(19, top + 3, hL); px(17, top + 4, hL); break; }
-    case 'braid': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 26; x < 34; x++) px(x, top + 8 + Math.round((x - 26) / 3), hair); rect(13, top + 6, 2, 10, hair); rect(34, top + 6, 2, 12, hS); break;
+    case 'braid': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 26; x < 34; x++) px(x, top + 8 + Math.round((x - 26) / 3), hair); rect(13, top + 6, 2, 12, hair); rect(33, top + 6, 2, 12, hS); break;
   }
   // ---- hats
   const hc = L.hatC, hcS = hc ? shade(hc, .8) : null, hcL = hc ? shade(hc, 1.15) : null;

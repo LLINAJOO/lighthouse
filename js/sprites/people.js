@@ -78,7 +78,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     r(-3, ht, 6, 1, hair); r(-4, ht + 1, 8, 1, hair); r(-3, ht + 1, 3, 1, hl);
     if (fem) {
       // softer face: side-swept fringe, hair framing the cheeks
-      r(-4, ht + 2, 3, 1, hair); r(2, ht + 2, 2, 1, hair); r(-4, ht + 3, 1, 3, hair); r(3, ht + 3, 1, 3, hair);
+      r(-4, ht + 2, 2, 1, hair); r(2, ht + 2, 2, 1, hair); r(-4, ht + 3, 1, 3, hair); r(3, ht + 3, 1, 3, hair);
       if (hdo === 'long') { r(-5, ht + 2, 1, 7, hair); r(4, ht + 2, 1, 7, hair); r(-4, ht + 6, 1, 2, hs); r(3, ht + 6, 1, 2, hs); }
       if (hdo === 'braids') { r(-5, ht + 3, 1, 6, hair); r(4, ht + 3, 1, 6, hair); r(-5, ht + 5, 1, 1, hs); r(4, ht + 5, 1, 1, hs); r(-5, ht + 9, 1, 1, tie); r(4, ht + 9, 1, 1, tie); }
       if (hdo === 'braid') { r(3, ht + 4, 2, 6, hair); r(3, ht + 6, 2, 1, hs); r(3, ht + 8, 2, 1, hs); r(3, ht + 10, 2, 1, tie); }
@@ -86,7 +86,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
       if (hdo === 'bun') { r(-2, ht - 2, 4, 2, hair); r(-2, ht - 2, 2, 1, hl); }
       if (hdo === 'pony') r(4, ht + 3, 1, 3, hair);
       if (hdo === 'pig') { r(-3, ht + 2, 6, 1, hair); r(-5, ht + 2, 1, 1, tie); r(4, ht + 2, 1, 1, tie); r(-7, ht + 2, 2, 2, hair); r(5, ht + 2, 2, 2, hair); r(-7, ht + 4, 1, 2, hs); r(6, ht + 4, 1, 2, hs); r(-7, ht + 2, 1, 1, hl); }
-    } else { r(-4, ht + 2, 2, 1, hair); r(1, ht + 2, 1, 1, hair); r(3, ht + 2, 1, 2, hair); r(-4, ht + 3, 1, 1, hair); }
+    } else { r(-4, ht + 2, 2, 1, hair); r(-1, ht + 2, 2, 1, hair); r(2, ht + 2, 2, 1, hair); r(-4, ht + 3, 1, 1, hair); r(3, ht + 3, 1, 1, hair); }
     if (blink) { r(-2, ht + 4, 1, 1, eye); r(1, ht + 4, 1, 1, eye); } else { r(-2, ht + 3, 1, 2, eye); r(1, ht + 3, 1, 2, eye); }
     if (fem && !blink) { r(-3, ht + 3, 1, 1, eye); r(2, ht + 3, 1, 1, eye); }
     r(-3, ht + 5, 1, 1, blush); r(2, ht + 5, 1, 1, blush);
