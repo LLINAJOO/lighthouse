@@ -37,7 +37,7 @@ function portraitSprite(look, talk, blink) {
   if (P.hair === 'braids') { for (const bx of [12, 33]) { for (let y = 26; y < 44; y += 3) { rect(bx, y + fy, 4, 2, hair); rect(bx + 1, y + 2 + fy, 2, 1, hS); } rect(bx, 44 + fy - 2, 4, 2, L.tie || '#c8303b'); } }
   if (P.hair === 'braid') { for (let y = 28; y < 46; y += 3) { rect(32, y, 4, 2, hair); rect(33, y + 2, 2, 1, hS); } rect(32, 45, 4, 2, L.tie || '#c8443a'); }
   // ---- head
-  const hx = 24, hy = 22 + fy, rx = kid ? 11 : 10.5, ry = kid ? 11 : 12.5;
+  const hx = 24, hy = 22 + fy, rx = kid ? 10 : 10.5, ry = kid ? 12.5 : 12.5;
   oval(hx, hy, rx, ry, skin);
   oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => x > hx + 4); // shade on the right
   if (!kid) { const jy = Math.floor(hy + ry - 2); for (let x = 15; x < 33; x++) { const dx = (x + .5 - hx) / rx, dy = (jy + .5 - hy) / ry; if ((x < 19 || x > 29) && dx * dx + dy * dy <= 1) px(x, jy, skS); } } // jaw shade, only inside the face
@@ -82,7 +82,7 @@ function portraitSprite(look, talk, blink) {
     case 'greyshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 7, hair); rect(34, top + 5, 2, 7, hS); px(13, top + 8, '#d8d8d8'); break;
     case 'darkshort': oval(24, top + 4, 11, 5, hair, (x, y) => y < top + 6); rect(13, top + 5, 2, 8, hair); rect(34, top + 5, 2, 8, hS); break;
     case 'pony': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 14; x < 22; x++) px(x, top + 8 + Math.round((22 - x) / 3), hair); rect(13, top + 6, 2, 11, hair); rect(34, top + 6, 2, 9, hS); px(17, top + 3, hL); px(18, top + 3, hL); break;
-    case 'braids': oval(24, top + 6, 12, 7, hair, (x, y) => y < top + 9); for (let x = 13; x < 36; x += 2) px(x, top + 9, hair); rect(12, top + 6, 3, 12, hair); rect(33, top + 6, 3, 12, hS); px(18, top + 3, hL); break;
+    case 'braids': { oval(24, top + 6, 11.5, 7.5, hair, (x, y) => y < top + 8); for (let x = 14; x < 34; x++) { const d = Math.abs(x + .5 - 24), h = d < 2 ? 0 : Math.round(3 - d / 4); for (let y = top + 8; y < top + 8 + Math.max(0, h); y++) px(x, y, hair); } rect(13, top + 7, 2, 11, hair); rect(33, top + 7, 2, 11, hS); px(18, top + 3, hL); px(19, top + 3, hL); px(17, top + 4, hL); break; }
     case 'braid': oval(24, top + 5, 11.5, 6.5, hair, (x, y) => y < top + 8); for (let x = 26; x < 34; x++) px(x, top + 8 + Math.round((x - 26) / 3), hair); rect(13, top + 6, 2, 10, hair); rect(34, top + 6, 2, 12, hS); break;
   }
   // ---- hats
@@ -91,7 +91,7 @@ function portraitSprite(look, talk, blink) {
     case 'beanie': oval(24, top + 5, 12.5, 8, hc, (x, y) => y < top + 7); rect(12, top + 5, 24, 4, hcS); for (let x = 13; x < 35; x += 2) rect(x, top + 5, 1, 4, shade(hc, .7)); for (let x = 15; x < 34; x += 3) px(x, top, hcL); oval(24, top - 4, 3, 2.5, '#f2e6cc'); px(23, top - 5, '#ffffff'); break;
     case 'souwester': oval(24, top + 3, 10, 7, hc, (x, y) => y < top + 7); rect(5, top + 6, 38, 3, hc); rect(5, top + 8, 38, 1, hcS); rect(3, top + 8, 4, 2, hc); rect(41, top + 8, 4, 2, hcS); rect(14, top + 3, 20, 1, hcL); break;
     case 'cap': oval(24, top + 3, 12, 6, hc, (x, y) => y < top + 6); rect(12, top + 4, 24, 3, hc); rect(12, top + 6, 24, 1, hcS); rect(13, top + 7, 20, 2, '#1a3358'); rect(14, top + 9, 16, 1, '#13284a'); rect(22, top, 4, 3, '#e8c55a'); rect(23, top + 1, 2, 1, '#c49412'); break;
-    case 'beret': oval(23, top + 2, 14, 5, hc); oval(23, top + 4, 13, 2.5, hcS, (x, y) => y > top + 4); rect(22, top - 4, 2, 2, hc); px(15, top, hcL); px(16, top, hcL); break;
+    case 'beret': oval(22, top + 1, 13, 5.5, hc); oval(22, top + 3.5, 12, 2.5, hcS, (x, y) => y > top + 4); rect(21, top - 6, 2, 2, hc); px(14, top - 1, hcL); px(15, top - 2, hcL); px(16, top - 2, hcL); break;
     case 'peaked': rect(12, top - 1, 24, 6, hc); rect(10, top - 3, 28, 3, hc); rect(10, top - 3, 28, 1, hcL); rect(12, top + 5, 24, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(22, top, 4, 3, '#d4b14a'); px(23, top + 1, '#a8822e'); break;
     case 'captain': rect(12, top - 1, 24, 6, hc); rect(10, top - 3, 28, 3, hc); rect(10, top - 3, 28, 1, '#ffffff'); rect(12, top + 5, 24, 2, '#1d1f24'); rect(13, top + 7, 22, 2, '#111318'); rect(15, top + 9, 18, 1, '#2c3036'); rect(21, top + 1, 6, 3, '#d4b14a'); px(23, top + 2, '#1d1f24'); px(24, top + 2, '#1d1f24'); for (let i = 0; i < 4; i++) px(14 + i * 6, top + 6, '#d4b14a'); break;
   }
