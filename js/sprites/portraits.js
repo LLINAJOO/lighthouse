@@ -10,8 +10,8 @@ const PORTRAIT = {
   nyura: { hair: 'braid', fem: true, freckles: true, collar: 'binoculars' },
 };
 const PCACHE2 = new Map();
-function portraitSprite(look, talk, blink) {
-  const key = look + (talk ? 't' : '') + (blink ? 'b' : ''); let cv = PCACHE2.get(key); if (cv) return cv;
+function portraitSprite(look, talk, blink, emo = 'neutral') {
+  const key = look + (talk ? 't' : '') + (blink ? 'b' : '') + emo; let cv = PCACHE2.get(key); if (cv) return cv;
   const L = LOOKS[look], P = PORTRAIT[look] || {}, [a, g] = mk(48, 48);
   const px = (x, y, col) => R(g, x, y, 1, 1, col), rect = (x, y, w, h, col) => R(g, x, y, w, h, col);
   const oval = (cx, cy, rx, ry, col, cut) => { for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) { const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry; if (dx * dx + dy * dy <= 1 && (!cut || cut(x, y))) px(x, y, col); } };
@@ -39,40 +39,58 @@ function portraitSprite(look, talk, blink) {
   // ---- head
   const hx = 24, hy = 22 + fy, rx = kid ? 10 : 10.5, ry = kid ? 12.5 : 12.5;
   oval(hx, hy, rx, ry, skin);
-  oval(hx + 4, hy + 1, rx - 3, ry - 2, skS, (x, y) => { const dx = (x + .5 - hx) / rx, dy = (y + .5 - hy) / ry; return x > hx + 4 && dx * dx + dy * dy <= 1; }); // shade on the right, kept inside the face
   if (!kid) { const jy = Math.floor(hy + ry - 2); for (let x = 15; x < 33; x++) { const dx = (x + .5 - hx) / rx, dy = (jy + .5 - hy) / ry; if ((x < 19 || x > 29) && dx * dx + dy * dy <= 1) px(x, jy, skS); } } // jaw shade, only inside the face
-  // ears
-  rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(34, hy - 1, 2, 5, skS); px(35, hy, skD);
+  // ears, mirrored
+  rect(12, hy - 1, 2, 5, skin); px(12, hy, skS); rect(34, hy - 1, 2, 5, skin); px(35, hy, skS);
   // ---- eyes
-  const ey = hy + (kid ? 1 : 0), eyeL = 16, eyeR = 28;
+  const ey = hy + (kid ? 1 : 0), eyeL = 16, eyeR = 28, DK = '#3a2a26';
+  const happyEyes = emo === 'happy' || emo === 'laugh';
   const eye = (x) => {
-    if (blink) { rect(x, ey + 1, 4, 1, '#3a2a26'); return; }
-    rect(x, ey, 4, 3, '#ffffff'); rect(x + 1, ey, 2, 3, '#3a2a26'); px(x + 1, ey, '#ffffff'); px(x + 2, ey + 2, '#5a4036');
-    if (fem || kid) { rect(x, ey - 1, 4, 1, '#2a1e1a'); if (fem) px(x + (x < 24 ? -1 : 4), ey, '#2a1e1a'); }
+    const lash = () => { if (fem) px(x + (x < 24 ? -1 : 4), ey, '#2a1e1a'); };
+    if (blink && !happyEyes) { rect(x, ey + 1, 4, 1, DK); return; }
+    if (happyEyes) { px(x, ey + 2, DK); rect(x + 1, ey + 1, 2, 1, DK); px(x + 3, ey + 2, DK); if (fem) px(x + (x < 24 ? -1 : 4), ey + 2, '#2a1e1a'); return; } // smiling ^ eyes
+    if (emo === 'sad') { rect(x, ey + 1, 4, 2, '#ffffff'); rect(x + 1, ey + 1, 2, 2, DK); rect(x, ey, 4, 1, fem || kid ? '#2a1e1a' : skD); lash(); return; } // heavy lids
+    if (emo === 'stern') { rect(x, ey + 1, 4, 2, '#ffffff'); rect(x + 1, ey + 1, 2, 2, DK); rect(x, ey, 4, 1, '#2a1e1a'); return; } // narrowed
+    rect(x, ey, 4, 3, '#ffffff');
+    if (emo === 'surprised') { px(x + 1, ey + 1, DK); px(x + 2, ey + 1, DK); rect(x, ey - 1, 4, 1, fem || kid ? '#2a1e1a' : skD); lash(); return; } // small pupils, wide eyes
+    rect(x + 1, ey, 2, 3, DK); px(x + 1, ey, '#ffffff'); px(x + 2, ey + 2, '#5a4036');
+    if (fem || kid) { rect(x, ey - 1, 4, 1, '#2a1e1a'); lash(); }
     else rect(x, ey - 1, 4, 1, skD);
   };
   eye(eyeL); eye(eyeR);
-  // brows
-  const bc = P.brows === 'bushy' ? '#f2f2f2' : shade(hair === '#e8e8e8' ? '#9a9a9a' : hair, .8);
-  if (P.brows === 'stern') { rect(15, ey - 4, 5, 1, bc); px(19, ey - 3, bc); rect(28, ey - 4, 5, 1, bc); px(28, ey - 3, bc); }
+  // brows: the usual shape when calm, tilted lines for feelings (outer -> inner heights, mirrored)
+  const bc = P.brows === 'bushy' ? '#f2f2f2' : shade(hair === '#e8e8e8' ? '#9a9a9a' : hair, .8), thick = P.brows === 'bushy' ? 2 : 1;
+  const tilt = { sad: [-2, -3, -3, -4, -4], worried: [-3, -3, -4, -4, -5], stern: [-4, -4, -3, -3, -2], surprised: [-5, -6, -6, -6, -5], happy: [-4, -4, -4, -4, -4], laugh: [-4, -5, -5, -5, -4] }[emo];
+  if (tilt) { for (let i = 0; i < 5; i++) { const yy = ey + tilt[i]; rect(15 + i, yy, 1, thick, bc); rect(32 - i, yy, 1, thick, bc); } if (P.brows === 'bushy') { rect(14, ey + tilt[0], 1, 2, bc); rect(33, ey + tilt[0], 1, 2, bc); } }
+  else if (P.brows === 'stern') { rect(15, ey - 4, 5, 1, bc); px(19, ey - 3, bc); rect(28, ey - 4, 5, 1, bc); px(28, ey - 3, bc); }
   else if (P.brows === 'bushy') { rect(14, ey - 4, 6, 2, bc); rect(28, ey - 4, 6, 2, bc); }
   else if (fem || kid) { for (const bx of [15, 28]) { px(bx, ey - 3, bc); rect(bx + 1, ey - 4, 3, 1, bc); px(bx + 4, ey - 3, bc); } }
   else { rect(15, ey - 3, 5, 1, bc); rect(28, ey - 3, 5, 1, bc); }
+  if (emo === 'worried' || emo === 'sad') { px(23, ey - 4, skS); px(24, ey - 4, skS); } // a little crease between the brows
   // nose
   if (fem || kid) { px(24, ey + 5, skS); px(23, ey + 5, skS); }
-  else { rect(24, ey + 2, 1, 3, skS); rect(23, ey + 5, 2, 1, skD); px(22, ey + 5, skS); px(25, ey + 5, skS); }
-  // cheeks, freckles
-  { const cl = kid ? 15 : 14; rect(cl, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#e8b0a0'); rect(45 - cl, ey + 5, 3, 1, fem || kid ? '#f0a0a0' : '#d8a090'); } // cheeks mirrored around x=24
+  else { rect(23, ey + 2, 2, 3, skin); rect(23, ey + 5, 2, 1, skD); px(22, ey + 5, skS); px(25, ey + 5, skS); }
+  // cheeks, freckles (cheeks glow when happy)
+  { const cl = kid ? 15 : 14, cc = happyEyes ? '#f08888' : fem || kid ? '#f0a0a0' : '#e8b0a0'; rect(cl, ey + 5, 3, 1, cc); rect(45 - cl, ey + 5, 3, 1, cc); if (happyEyes && (fem || kid)) { rect(cl, ey + 4, 3, 1, '#f6b4ac'); rect(45 - cl, ey + 4, 3, 1, '#f6b4ac'); } }
   if (P.freckles) [[15, ey + 4], [17, ey + 5], [32, ey + 4], [30, ey + 5], [16, ey + 6], [31, ey + 6]].forEach(([x, y]) => px(x, y, shade(skin, .78)));
   if (P.wrinkles) { px(14, ey + 1, skD); px(33, ey + 1, skD); if (P.wrinkles > 1) { rect(20, ey - 6, 8, 1, skS); rect(21, ey - 8, 6, 1, skS); } }
   if (P.stubble) for (let x = 17; x < 31; x++) for (let y = ey + 9; y < ey + 11; y++) if (hash(Math.min(x, 47 - x), y) > .7) px(x, y, shade(skin, .9));
-  // mouth
-  const my = ey + 8;
-  if (talk) { rect(22, my, 4, 2, '#5a2a26'); rect(23, my + 1, 2, 1, '#c8605a'); }
-  else { rect(22, my, 4, 1, fem || kid ? '#c8605a' : '#9a4c46'); if (fem) rect(23, my + 1, 2, 1, '#e08a84'); }
-  // beard and mustache
-  if (P.beard === 'big') { oval(24, my + 4, 11, 8, L.beard, (x, y) => y >= my - 1); oval(24, my + 4, 9, 6, '#ffffff', (x, y) => y >= my + 3 && x < 24); rect(20, my - 1, 8, 2, '#e8e8e8'); if (talk) { rect(22, my + 1, 4, 2, '#5a2a26'); } for (let i = 0; i < 5; i++) px(16 + i * 4, my + 8 + (i % 2), '#d8d8d8'); }
-  if (P.beard === 'trim') { for (let y = my - 2; y < my + 6; y++) for (let x = 14; x < 35; x++) { const dx = (x + .5 - 24) / 10.5, dy = (y + .5 - (my - 2)) / 8; if (dx * dx + dy * dy <= 1 && y >= ey + 6) px(x, y, L.beard); } rect(21, my - 1, 6, 1, shade(L.beard, .8)); if (talk) rect(22, my, 4, 2, '#5a2a26'); else rect(22, my, 4, 1, '#9a4c46'); }
+  // mouth, symmetric around x=24; opens while talking
+  const my = ey + 8, lipC = fem || kid ? '#c8605a' : '#9a4c46', IN = '#5a2a26', TG = '#c8605a';
+  const mouth = (y) => {
+    if (emo === 'laugh') { rect(21, y, 6, 2, IN); rect(22, y + 1, 4, 1, TG); rect(22, y - 1 + (talk ? 0 : 0), 4, 1, '#ffffff'); px(21, y - 1, IN); px(26, y - 1, IN); return; }
+    if (emo === 'surprised') { rect(23, y, 2, talk ? 3 : 2, IN); px(22, y + 1, IN); px(25, y + 1, IN); return; }
+    if (talk) { const w = emo === 'happy' ? 6 : 4, x0 = 24 - w / 2; rect(x0, y, w, 2, IN); rect(x0 + 1, y + 1, w - 2, 1, TG); if (emo === 'happy') { px(x0 - 1, y - 1, IN); px(x0 + w, y - 1, IN); } return; }
+    if (emo === 'happy') { rect(22, y, 4, 1, lipC); px(21, y - 1, lipC); px(26, y - 1, lipC); return; }
+    if (emo === 'sad') { rect(22, y, 4, 1, lipC); px(21, y + 1, lipC); px(26, y + 1, lipC); return; }
+    if (emo === 'worried') { rect(23, y, 2, 1, lipC); px(22, y + 1, lipC); px(25, y + 1, lipC); return; }
+    if (emo === 'stern') { rect(21, y, 6, 1, shade(lipC, .8)); return; }
+    rect(22, y, 4, 1, lipC); if (fem) rect(23, y + 1, 2, 1, '#e08a84');
+  };
+  mouth(my);
+  // beard and mustache (the mouth shows again on top of the beard)
+  if (P.beard === 'big') { oval(24, my + 4, 11, 8, L.beard, (x, y) => y >= my - 1); oval(24, my + 4, 9, 6, '#ffffff', (x, y) => y >= my + 3 && x < 24); rect(20, my - 1, 8, 2, '#e8e8e8'); if (talk || emo !== 'neutral') mouth(my + 1); for (let i = 0; i < 5; i++) px(16 + i * 4, my + 8 + (i % 2), '#d8d8d8'); }
+  if (P.beard === 'trim') { for (let y = my - 2; y < my + 6; y++) for (let x = 14; x < 35; x++) { const dx = (x + .5 - 24) / 10.5, dy = (y + .5 - (my - 2)) / 8; if (dx * dx + dy * dy <= 1 && y >= ey + 6) px(x, y, L.beard); } rect(21, my - 1, 6, 1, shade(L.beard, .8)); mouth(my); }
   if (P.mustache) { rect(20, my - 2, 8, 2, L.mustache); px(19, my - 1, L.mustache); px(28, my - 1, L.mustache); }
   // ---- hair on the head
   const top = hy - ry;
@@ -99,9 +117,40 @@ function portraitSprite(look, talk, blink) {
   PCACHE2.set(key, a); return a;
 }
 // draw the speaker; while the line is being typed the mouth moves, and everyone blinks now and then
-function drawPortrait(c, look, talking, t) {
+function drawPortrait(c, look, talking, t, emo) {
   const blink = (t % 4.3) > 4.12, talk = talking && Math.floor(t * 9) % 2 === 1;
   c.clearRect(0, 0, c.canvas.width, c.canvas.height);
-  c.drawImage(portraitSprite(look, talk, blink), Math.round((c.canvas.width - 48) / 2), c.canvas.height - 48);
+  c.drawImage(portraitSprite(look, talk, blink, emo || 'neutral'), Math.round((c.canvas.width - 48) / 2), c.canvas.height - 48);
 }
 NAME_LOOK['Нюра'] = 'nyura';
+// ===== which face fits the line =====
+const EMOS = ['neutral', 'happy', 'laugh', 'sad', 'surprised', 'worried', 'stern'];
+// hand-picked faces for the written lines (matched by how the line starts)
+const EMO_LINES = [
+  ['Дождь стучит', 'worried'], ['Туман такой', 'worried'], ['Говорили, приедет инспектор', 'worried'], ['Последний день', 'sad'], ['Под камнем', 'surprised'],
+  ['Вот ты где', 'happy'], ['Генератор чихнул', 'happy'], ['Генератор в сарае', 'worried'], ['Электричества нет', 'worried'], ['Не всё сделано', 'sad'], ['Огонь. В последний раз', 'sad'],
+  ['Солнце садится', 'happy'], ['Свет пошёл', 'happy'], ['Птенец пискнул', 'laugh'], ['Одна из чаек', 'surprised'], ['Кыш!', 'stern'], ['Кот посмотрел с укором', 'sad'],
+  ['Уха с дымком', 'happy'], ['Брусника', 'happy'], ['Тюлений камень', 'laugh'], ['Тюленёнок запутался', 'worried'], ['Тюленёнок перекатился', 'happy'], ['У пирса вынырнула', 'happy'],
+  ['Машу фонарём', 'worried'], ['Сгрёб сети', 'worried'], ['Огромный дуб', 'surprised'], ['Велосипед без колеса', 'laugh'], ['Кайра смотрит свысока', 'laugh'], ['На пляже палатка', 'surprised'],
+  ['Птичий базар', 'laugh'], ['Ящик выбросило', 'surprised'], ['Шторм ушёл', 'neutral'], ['Там! Ответный', 'happy'], ['Рыжий, говоришь', 'happy'], ['Аккуратно, по одной', 'happy'],
+  ['Темнеет. Ночью в море', 'stern'], ['Глаза слипаются', 'sad'],
+  ['Повешу в лодке', 'happy'], ['Я его никогда-никогда', 'laugh'], ['Саше с травами', 'surprised'], ['Живёт теперь у меня', 'laugh'], ['Всё! Вы мне за три дня', 'happy'], ['Держите бинокль', 'happy'],
+  ['Еле успела', 'laugh'], ['Пришёл! Садись', 'happy'], ['Готово!', 'happy'], ['Пришёл всё-таки', 'happy'], ['Слушай! Посидишь', 'happy'], ['Рано пришёл', 'laugh'], ['А уху-то я так и не', 'sad'],
+  ['Вот, держите. Марка', 'happy'], ['Новости?', 'laugh'], ['Ваше письмо я сама', 'happy'], ['Твой портрет', 'happy'], ['Дедушка сказал, ты слышал китов', 'surprised'], ['Вчерашнюю уху', 'happy'],
+  ['И сети ты мои спас', 'happy'], ['Говорят, ты кораблю', 'surprised'], ['Знаете что? Первого', 'happy'], ['Будет у меня на базаре', 'laugh'], ['И сети мои спас, и Лиду', 'laugh'], ['Сети мои ты в шторм спас', 'happy'],
+  ['Слыхал, ты Лиду', 'happy'], ['Сети мои шторм унёс', 'sad'], ['Это вы мне светили', 'happy'], ['Ох, ну и ночка', 'worried'], ['Ты тут смотришь на море', 'sad'], ['Я ещё загляну', 'sad'],
+  ['Это мне? Поплавок', 'surprised'], ['Слушай, смотритель. Подобрал', 'happy'], ['Ожерелье!', 'happy'], ['Положу в сумку', 'happy'], ['Шестерни крутятся', 'happy'],
+];
+function emoOf(who, text) {
+  const raw = text || '', t = raw.toLowerCase();
+  for (const [p, e] of EMO_LINES) if (raw.startsWith(p)) return e;
+  if (/(^|[^а-яё])(ха|хе|хи)(-?(ха|хе|хи))+|смеш|смеётся|смеюсь|хохоч/.test(t)) return 'laugh';
+  if (/беда|боюсь|страшн|тревож|опасн|помоги|скорее|срочно|пропал|не успе|осторожн|не дай бог|тонет|ранен/.test(t)) return 'worried';
+  if (/жаль|грустн|скуча|плак|одинок|прощай|умер|без вас|тоскл|печал|(^|[^а-яё])эх([^а-яё]|$)|увы|последний раз/.test(t)) return 'sad';
+  if (/\?!|!\?|(^|[^а-яё])(ого|ух ты|ох|ах|неужели|вот это да|надо же|не может быть)([^а-яё]|$)/.test(t)) return 'surprised';
+  if (/нарушен|обязан|по инструкции|инспекц|запрещ|недопустим|предупреждаю|протокол|неверно|замечание/.test(t)) return 'stern';
+  if (/спасибо|(^|[^а-яё])рад[аы]?([^а-яё]|$)|здорово|отлично|чудесн|прекрасн|ура|красив|люблю|молодец|улыб|весело|получилось|поздрав|благодар|славн|верно|правильно|образцов/.test(t)) return 'happy';
+  if (/!\s*$/.test(t) && who !== 'Громов' && who !== 'Смотритель') return 'happy';
+  if (who === 'Громов') return 'stern'; // the inspector is all business unless pleased
+  return 'neutral';
+}
