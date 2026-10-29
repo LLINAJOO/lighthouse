@@ -62,7 +62,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     else { const s = step; r(-1 + s, tt, 2, 3, coatS); r(-1 + s, tt + 3, 2, 1, L.skin); }
   }
   // ---- head (8 wide, 7 tall)
-  r(-3, ht, 6, 1, L.skin); r(-4, ht + 1, 8, 5, L.skin); r(-3, ht + 6, 6, 1, fem ? L.skin : skinS); // chin shade only on men: on women it read as stubble
+  r(-3, ht, 6, 1, L.skin); r(-4, ht + 1, 8, 5, L.skin); r(-3, ht + 6, 6, 1, fem ? L.skin : skinS); r(-3, ht + 6, 1, 1, OUTL); r(2, ht + 6, 1, 1, OUTL); // rounded chin: dark lower corners
   r(-2, tt - 1, 4, 1, OUTL);
   const eye = '#221c24', lip = fem ? '#d0605e' : '#9a4c46', blush = fem ? '#f08c8c' : '#e8a090';
   if (back) {
@@ -90,8 +90,7 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     if (blink) { r(-2, ht + 4, 1, 1, eye); r(1, ht + 4, 1, 1, eye); } else { r(-2, ht + 3, 1, 2, eye); r(1, ht + 3, 1, 2, eye); }
     if (fem && !blink) { r(-3, ht + 3, 1, 1, eye); r(2, ht + 3, 1, 1, eye); }
     r(-3, ht + 5, 1, 1, blush); r(2, ht + 5, 1, 1, blush);
-    if (fem) r(-1, ht + 5, 2, 1, lip); else r(-1, ht + 5, 2, 1, lip);
-    if (L.beard) { r(-3, ht + 5, 6, 2, L.beard); r(-2, ht + 7, 4, 1, L.beard); r(-4, ht + 3, 1, 3, L.beard); r(3, ht + 3, 1, 3, L.beard); r(-1, ht + 5, 2, 1, shade(L.beard, .7)); }
+    if (L.beard) { r(-3, ht + 5, 6, 2, L.beard); r(-2, ht + 7, 4, 1, L.beard); r(-4, ht + 3, 1, 3, L.beard); r(3, ht + 3, 1, 3, L.beard); }
     if (L.mustache) r(-2, ht + 5, 4, 1, L.mustache);
   } else {
     // profile, facing right
@@ -108,9 +107,8 @@ function paintPerson(g, L, dir, f, mv, sit, act, blink, breath) {
     r(-1, ht + 3, 1, 2, skinS);
     if (blink) r(2, ht + 4, 1, 1, eye); else { r(2, ht + 3, 1, 2, eye); if (fem) r(3, ht + 3, 1, 1, eye); }
     r(1, ht + 5, 1, 1, blush);
-    if (fem) r(3, ht + 5, 1, 1, lip);
-    else { r(4, ht + 3, 1, 2, L.skin); r(4, ht + 4, 1, 1, skinS); r(2, ht + 5, 2, 1, lip); }
-    if (L.beard) { r(-1, ht + 5, 6, 2, L.beard); r(0, ht + 7, 4, 1, L.beard); r(-1, ht + 3, 1, 2, L.beard); r(3, ht + 5, 2, 1, shade(L.beard, .7)); }
+    if (!fem) { r(4, ht + 3, 1, 2, L.skin); r(4, ht + 4, 1, 1, skinS); }
+    if (L.beard) { r(-1, ht + 5, 6, 2, L.beard); r(0, ht + 7, 4, 1, L.beard); r(-1, ht + 3, 1, 2, L.beard); }
     if (L.mustache) r(2, ht + 5, 3, 1, L.mustache);
   }
   // ---- hats
