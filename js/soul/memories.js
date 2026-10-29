@@ -6,6 +6,8 @@ function memo(key, text) {
   f.memo = f.memo || {}; (f.memo[S.day] = f.memo[S.day] || []).push(text);
 }
 const memosOf = d => ((S.flags.memo || {})[d] || []);
+// everything remembered that day, including what happened after the entry was written (aurora, whales...)
+const dayMemos = j => { const all = memosOf(j.d); return all.length >= (j.m || []).length ? all : (j.m || []); };
 const WATCH = [
   ['cat', () => S.flags.cat === 'kept' && S.flags.catName, () => `Рыжий кот остался у меня. Назвал его ${catName()}.`],
   ['catgone', () => S.flags.cat === 'gone', () => 'Не оставил рыжего кота. Надеюсь, он нашёл себе дом.'],
@@ -58,7 +60,7 @@ function tipTick(dt) {
   if (tl.startsWith('Посидеть')) tip('bench', 'На скамейке время идёт быстрее. А на закате с неё очень красиво.');
   if (tl.startsWith('Поговорить')) tip('talk', 'С гостями острова можно говорить каждый день: они рассказывают новое и иногда просят о помощи.');
   if (MAP && MAP.id === 'shed') tip('shed', 'Это верстак: из находок можно смастерить подарки. Что для чего нужно — в сумке, вкладка «Рецепты».');
-  if (S.min >= 1020 && S.day <= 2) tip('evening', 'Вечер: зажгите огонь в фонарной, потом сделайте запись в журнале за столом в спальне — и спать.');
+  if (S.min >= 1020 && S.day <= 2) tip('evening', 'Вечер: зажгите огонь в фонарной, потом сделайте запись в дневнике за столом в спальне — и спать.');
 }
 
 // ---------- souvenirs: label, hints ----------

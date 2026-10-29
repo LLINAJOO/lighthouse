@@ -350,7 +350,7 @@ function update(dt) {
   G.time += dt; if (G.mode === 'sail') sailUpdate(dt);
   if (G.mode === 'play') {
     const paused = !$('#dialog').hidden || !$('#panel').hidden || G.busy || MENU.open || NAMEBOX.open || SCOPE_ON || DOC_ON || COUNT_ON || MORSE_ON;
-    if (!paused) { S.min += dt * MIN_RATE * (P.sit ? 4 : 1); checkEvents(); }
+    if (!paused) { S.min += dt * MIN_RATE * (P.sit && !G.quiet ? 4 : 1); checkEvents(); }
     env(); UI.clock();
     G.npcs = []; G.boats = [];
     if (MAP.id === 'island') { const v = visitsNow(); G.npcs = v.npcs; G.boats = v.boats; }

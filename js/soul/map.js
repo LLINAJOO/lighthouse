@@ -88,7 +88,8 @@ const at = (map, x, y) => ({ map, x, y, isl: map === 'island' ? [x, y] : map ===
 const atObj = (map, o) => o ? at(map, o.ix ?? o.x, o.iy ?? o.y) : null;
 function taskWhere(id) {
   switch (id) {
-    case 'lens': case 'lamp': return at('lamp', 7.5 * T, 7.9 * T);
+    case 'lamp': if (S.day === 7 && !S.flags.radio && S.min >= 1020) return at('lamp', 10.1 * T, 5.9 * T); return at('lamp', 7.5 * T, 7.9 * T);
+    case 'lens': return at('lamp', 7.5 * T, 7.9 * T);
     case 'oil': return has('oilcan') ? at('lamp', 5.2 * T, 9.2 * T) : at('house', 10.5 * T, 3.9 * T);
     case 'mech': return at('lamp', 5.2 * T, 9.2 * T);
     case 'clean': return atObj('house', objOf('house', 'dust', o => !o.gone));
@@ -99,7 +100,7 @@ function taskWhere(id) {
     case 'gen': return at('shed', 3 * T, 4.2 * T);
     case 'pier': return atObj('island', objOf('island', 'debris', o => !o.gone));
     case 'ladder': return has('wrench') ? at('island', 31 * T + 10, 42 * T + 6) : at('shed', 6.2 * T, 3.5 * T);
-    case 'ship': return at('island', 31.4 * T, 42.4 * T);
+    case 'ship': { const b = visitsNow().npcs.find(n => n.id === 'belov'); return b ? at('island', b.x, b.y) : at('island', 31 * T, 40 * T); }
     case 'unload': return P.carry === 'crate' ? at('house', 8.4 * T, 4.6 * T) : atObj('island', objOf('island', 'supply', o => !o.gone));
     case 'bye': { const n = visitsNow().npcs.find(n => !S.flags['bye' + n.id[0].toUpperCase() + n.id.slice(1)]); return n ? at('island', n.x, n.y) : null; }
     case 'pierEnd': return at('island', 31 * T, 42 * T);

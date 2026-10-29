@@ -74,7 +74,7 @@ function deliverLetter(n, who, intro, after) {
 }
 function replyMenu(n, after) {
   const avail = Object.keys(TOPICS).filter(k => TOPICS[k].ok()).sort((a, b) => TOPICS[b].w - TOPICS[a].w).slice(0, 4);
-  const done = picks => { S.flags['reply' + n] = picks; memo('reply' + n, 'Написал домой ' + picks.map(k => topicLabel(k).replace('Про ', 'про ')).join(' и ') + '.'); say([[HERO, 'Запечатал конверт. ' + (n === 1 ? 'Матвей обещал завезти на почту.' : 'Лида заберёт его на материк.')]], after); };
+  const done = picks => { S.flags['reply' + n] = picks; if (S.flags.reply1 && S.flags.reply2) unlock('letters'); memo('reply' + n, 'Написал домой ' + picks.map(k => topicLabel(k).replace('Про ', 'про ')).join(' и ') + '.'); say([[HERO, 'Запечатал конверт. ' + (n === 1 ? 'Матвей обещал завезти на почту.' : 'Лида заберёт его на материк.')]], after); };
   MENU.show('Что написать домой? Выберите первое.', avail.map(k => ({ label: topicLabel(k), run: () => {
     const rest = avail.filter(x => x !== k);
     setTimeout(() => MENU.show('А ещё?', rest.map(r => ({ label: topicLabel(r), run: () => done([k, r]) })).concat([{ label: 'Хватит, этого достаточно', run: () => done([k]) }])), 30);

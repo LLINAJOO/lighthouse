@@ -29,6 +29,8 @@ function soulTick(dt) {
   soulWatch(); mapTick(); tipTick(dt); quietTick(dt); benchQuietCheck(); morseFrame(dt);
 }
 function soulMorning() {
+  if (G.quiet) { G.quiet = null; document.body.classList.remove('quiet'); $('#qcap').classList.add('off'); }
+  if (MORSE_ON) closeMorse();
   TIPQ.length = 0; tipT = 0; $('#tipbox').classList.add('off');
   if (S.day === 1) {
     tip('move', isTouch ? 'Джойстик слева — ходить, кнопка A — действие. Список дел — слева вверху.' : 'WASD или стрелки — ходить, Shift — бегом, E или пробел — действие. Список дел — слева вверху.');
@@ -100,6 +102,7 @@ function soulInit() {
   };
   // objects: storm spots, the signal lamp, the bonfire
   addObj('island', { x: 31 * T, y: 45.6 * T, kind: 'signal', r: 22, on: () => S.day === 3 && S.flags.storm && !S.flags.stormL, draw() { }, use: { label: () => 'Светить фонарём в море', run: lidaSignal } });
+  { const fs = MAPS.island.objs.find(o => o.kind === 'fishspot' && o.x < 12 * T); if (fs) { const lab = fs.use.label; fs.use = { label: () => S.day === 3 && S.flags.storm && !S.flags.stormN ? null : lab(), run: fs.use.run }; } }
   addObj('island', { x: 9.9 * T, y: 33 * T, kind: 'nets', r: 22, on: () => S.day === 3 && S.min >= 1080 && !S.flags.stormN, draw: drawNetsPile, use: { label: () => S.flags.storm ? 'Забрать сети Матвея повыше' : null, run: netsSave } });
   addObj('island', { x: 29.1 * T, y: 39.4 * T, kind: 'fire', on: () => S.day === 6 && S.min >= 1066 && S.min < 1350, draw(c, sx, sy) { drawCampfire(c, sx, sy); } });
   addObj('lamp', { x: 10.2 * T, y: 8.4 * T, kind: 'signal', solid: [-5, -4, 10, 4], r: 16, draw(c, sx, sy) { R(c, sx - 1, sy - 10, 2, 10, '#2c2f38'); R(c, sx - 5, sy - 16, 10, 7, '#3d4250'); R(c, sx - 5, sy - 16, 10, 1, '#555b6a'); R(c, sx + 5, sy - 15, 2, 5, MORSE_ON && MS.lit ? '#fff3b0' : '#c9a24a'); for (let i = 0; i < 3; i++) R(c, sx - 4, sy - 14 + i * 2, 8, 1, '#22262f'); R(c, sx - 4, sy, 8, 1, '#2c2f38'); },
@@ -121,7 +124,7 @@ function journalTab(body) {
   const h = document.createElement('div'); h.className = 'sect'; h.textContent = 'Дневник смотрителя'; body.appendChild(h);
   if (!S.journal.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'Пока пусто. Записи делают вечером за столом в спальне, когда огонь уже горит. За день сюда сами попадают события: что поймали, кого встретили, что нашли.'; body.appendChild(e); }
   else { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = 'Перелистать дневник'; b.onclick = () => { UI.close(); openDiary(S.journal[0].d, false); }; body.appendChild(b); }
-  S.journal.forEach(j => { const e = document.createElement('div'); e.className = 'entry'; const b = document.createElement('b'); b.textContent = 'День ' + j.d; e.append(b, document.createTextNode(j.t)); if ((j.m || []).length) { const ul = document.createElement('ul'); j.m.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); }); e.appendChild(ul); } body.appendChild(e); });
+  S.journal.forEach(j => { const e = document.createElement('div'); e.className = 'entry'; const b = document.createElement('b'); b.textContent = 'День ' + j.d; e.append(b, document.createTextNode(j.t)); if (dayMemos(j).length) { const ul = document.createElement('ul'); dayMemos(j).forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); }); e.appendChild(ul); } body.appendChild(e); });
   const today = memosOf(S.day); if (today.length && !S.journal.some(j => j.d === S.day)) { const e = document.createElement('div'); e.className = 'entry'; const b = document.createElement('b'); b.textContent = 'Сегодня, черновик'; e.appendChild(b); const ul = document.createElement('ul'); today.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); }); e.appendChild(ul); body.appendChild(e); }
   const docs = [];
   [1, 2, 3].forEach(n => { if (S.flags['let' + n]) docs.push(['let' + n, 'Письмо из дома · ' + n, letterBody(n).lines.slice(1, 2).join(' ')]); });

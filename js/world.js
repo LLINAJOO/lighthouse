@@ -11,7 +11,7 @@ const TASK = {
   clean: { t: 'Подмести в доме', n: 3 },
   wood: { t: 'Принести дрова из леса к печи', n: 3 },
   lamp: { t: 'Зажечь маяк (с 17:00)' },
-  journal: { t: 'Запись в журнале (вечером)' },
+  journal: { t: 'Запись в дневнике (вечером)' },
   oil: { t: 'Заменить масло в механизме' },
   fish: { t: 'Поймать рыбу' },
   dinner: { t: 'Приготовить ужин на печи' },
@@ -214,7 +214,7 @@ function buildWorld() {
   addObj('house', { x: 8.4 * T, y: 4.4 * T, kind: 'store', r: 18, draw(c, sx, sy) { const n = S.flags.unloaded || 0; for (let i = 0; i < n; i++) drawCrate(c, sx - 8 + i * 9, sy, { a: .6, dx: 0, dy: 0 }, false); }, use: { label: () => P.carry === 'crate' ? 'Поставить ящик в кладовую' : null, run: () => { P.carry = null; S.flags.unloaded = (S.flags.unloaded || 0) + 1; progress('unload'); } } });
   addObj('house', { x: 9 * T, y: 7 * T, kind: 'stairs', solid: [-11, -13, 22, 12], r: 16, iy: 7 * T + 2, draw: drawStairs, use: { label: () => 'Подняться в фонарную', run: () => goTo('lamp', 7.5 * T, 9.1 * T, 3) } });
   addObj('house', { x: 15.4 * T, y: 4.6 * T, kind: 'bed', solid: [-10, -27, 20, 26], r: 18, iy: 5 * T, draw: drawBed, use: { label: bedLabel, run: bedRun } });
-  addObj('house', { x: 12.6 * T, y: 3.2 * T, kind: 'desk', solid: [-11, -12, 22, 11], r: 15, iy: 3.6 * T, draw(c, sx, sy) { R(c, sx - 11, sy - 14, 22, 10, '#8a5a32'); R(c, sx - 11, sy - 14, 22, 2, '#a87444'); R(c, sx - 10, sy - 4, 2, 4, '#5d3a20'); R(c, sx + 8, sy - 4, 2, 4, '#5d3a20'); R(c, sx - 6, sy - 13, 8, 5, '#3a4e7a'); R(c, sx - 5, sy - 12, 6, 3, '#f2e6cc'); R(c, sx + 5, sy - 17, 3, 5, '#e9dcbc'); R(c, sx + 6, sy - 19, 1, 2, G.dark > .3 ? '#ffd477' : '#e9dcbc'); }, use: { label: () => open('journal') && journalAvail() ? 'Сделать запись в журнале' : 'Журнал смотрителя', run: () => { if (open('journal') && journalAvail()) writeJournal(); else if (open('journal')) say([[HERO, 'Запись делают вечером, когда огонь уже горит.']]); else UI.panel('jr'); } } });
+  addObj('house', { x: 12.6 * T, y: 3.2 * T, kind: 'desk', solid: [-11, -12, 22, 11], r: 15, iy: 3.6 * T, draw(c, sx, sy) { R(c, sx - 11, sy - 14, 22, 10, '#8a5a32'); R(c, sx - 11, sy - 14, 22, 2, '#a87444'); R(c, sx - 10, sy - 4, 2, 4, '#5d3a20'); R(c, sx + 8, sy - 4, 2, 4, '#5d3a20'); R(c, sx - 6, sy - 13, 8, 5, '#3a4e7a'); R(c, sx - 5, sy - 12, 6, 3, '#f2e6cc'); R(c, sx + 5, sy - 17, 3, 5, '#e9dcbc'); R(c, sx + 6, sy - 19, 1, 2, G.dark > .3 ? '#ffd477' : '#e9dcbc'); }, use: { label: () => open('journal') && journalAvail() ? 'Сделать запись в дневнике' : 'Дневник смотрителя', run: () => { if (open('journal') && journalAvail()) writeJournal(); else if (open('journal')) say([[HERO, 'Запись делают вечером, когда огонь уже горит.']]); else UI.panel('jr'); } } });
   addObj('house', { x: 14.6 * T, y: 2.25 * T, kind: 'souvshelf', r: 16, iy: 2.9 * T, solid: [-12, -5, 24, 4], draw: drawSouvShelf, use: { label: () => 'Полка сувениров (' + S.souv.length + '/' + SOUV_TOTAL + ')', run: () => { UI.panel('inv'); } } });
   addObj('house', { x: 9 * T, y: 11 * T + 6, kind: 'door', r: 14, iy: 10.6 * T, draw() { }, use: { label: () => 'Выйти наружу', run: exitHouse } });
   addObj('house', { x: 5 * T, y: 1.6 * T, kind: 'window', draw: drawWindow });
@@ -323,7 +323,7 @@ function bedRun() {
     const n = S.tasks.filter(t => !t.done).length;
     return MENU.ask(n ? `Лечь спать? Не сделано дел: ${n}. Новый день начнётся утром.` : 'Лечь спать? День закончится, утром начнётся новый.', 'Лечь спать', 'Ещё не сейчас', () => left ? say([[HERO, 'Не всё сделано, но глаза слипаются. Ладно, завтра будет новый день.']], sleep) : sleep());
   }
-  say([[HERO, 'Ещё рано. Спать ложатся после записи в журнале.']]);
+  say([[HERO, 'Ещё рано. Спать ложатся после записи в дневнике.']]);
 }
 function journalAvail() { return S.lampLit || S.min >= 1140; }
 function writeJournal() {
@@ -340,7 +340,7 @@ function lensRun() {
     if (S.day === 7 && !S.flags.radio) return say([[HERO, 'Рация мигает. Сначала послушаю, что передают.']]);
     if (!lampAvail()) return say([[HERO, S.day === 5 ? 'Рано. В туман огонь зажигают с полудня.' : 'Рано. Огонь зажигают с пяти вечера.']]);
     if (!S.power) return say([[HERO, 'Электричества нет. Сначала генератор в сарае.']]);
-    return startAct('light', 1.4, () => { S.lampLit = true; progress('lamp'); AU.chime(); if (S.day === 7) { S.flags.finalLight = 1; say([[HERO, 'Огонь. В последний раз — моими руками.'], [HERO, 'Солнце садится в море. Отсюда виден весь остров: пирс, лес, утёс, крошечные крыши сарая. И катер на горизонте.'], ['Подсказка', 'Осталось сделать запись в журнале и спуститься на пирс.']]); } else say([[HERO, 'Свет пошёл. Луч лёг на воду и побежал по кругу.']]); });
+    return startAct('light', 1.4, () => { S.lampLit = true; progress('lamp'); AU.chime(); if (S.day === 7) { S.flags.finalLight = 1; say([[HERO, 'Огонь. В последний раз — моими руками.'], [HERO, 'Солнце садится в море. Отсюда виден весь остров: пирс, лес, утёс, крошечные крыши сарая. И катер на горизонте.'], ['Подсказка', 'Осталось сделать запись в дневнике и спуститься на пирс.']]); } else say([[HERO, 'Свет пошёл. Луч лёг на воду и побежал по кругу.']]); });
   }
   if (S.lampLit) say([[HERO, 'Луч медленно обходит горизонт. Где-то там его видят.']]);
   else say([[HERO, 'Линза Френеля — сотни стеклянных колец. Савелий называл её «стрекозиный глаз».']]);

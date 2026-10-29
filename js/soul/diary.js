@@ -24,7 +24,7 @@ function renderDiary(body) {
   const head = hand('div', 'dh'); head.append(hand('span', '', 'День ' + j.d), hand('span', '', (WX_NAME[(DAYS[j.d] || {}).w] || '')));
   p.appendChild(head);
   const main = hand('p', 'hw', DOC.writing ? '' : j.t); p.appendChild(main);
-  const ul = document.createElement('ul'); (j.m || []).slice(0, 5).forEach(t => { const li = hand('li', '', t); if (DOC.writing) li.style.opacity = 0; ul.appendChild(li); }); if ((j.m || []).length) p.appendChild(ul);
+  const ul = document.createElement('ul'); (DOC.writing ? (j.m || []) : dayMemos(j)).slice(0, 6).forEach(t => { const li = hand('li', '', t); if (DOC.writing) li.style.opacity = 0; ul.appendChild(li); }); if (ul.children.length) p.appendChild(ul);
   const [c, x] = mk(120, 60); c.className = 'doodle'; drawDiaryDoodle(x, 120, 60, j.d); p.appendChild(c);
   body.appendChild(p);
   if (DOC.writing) {
