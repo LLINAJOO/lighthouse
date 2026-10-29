@@ -73,7 +73,7 @@ function soulMorning() {
 function soulInit() {
   // HUD: labelled souvenirs, a map button
   $('#souv').title = 'Сувениры: памятные вещи недели. Нажмите, чтобы посмотреть, что найдено и где искать остальное';
-  $('#souv').onclick = () => UI.panel('inv');
+  $('#souv').onclick = () => UI.panel('inv'); $('#souv').tabIndex = 0; $('#souv').setAttribute('role', 'button'); $('#souv').onkeydown = e => { if (e.key === 'Enter') UI.panel('inv'); };
   const bm = document.createElement('button'); bm.className = 'btn'; bm.id = 'bMap'; bm.type = 'button'; bm.innerHTML = 'Карта<kbd>M</kbd>'; bm.onclick = () => togglePanel('chart'); $('#btns').insertBefore(bm, $('#bSnd'));
   $('#tipbox').onclick = () => { tipT = 0; showTip(); };
   { const tc = $('#tipI').getContext('2d'); tc.drawImage(icon('lantern'), 0, 0); }
@@ -102,7 +102,8 @@ function soulInit() {
   };
   // objects: storm spots, the signal lamp, the bonfire
   addObj('island', { x: 31 * T, y: 45.6 * T, kind: 'signal', r: 22, on: () => S.day === 3 && S.flags.storm && !S.flags.stormL, draw() { }, use: { label: () => 'Светить фонарём в море', run: lidaSignal } });
-  { const fs = MAPS.island.objs.find(o => o.kind === 'fishspot' && o.x < 12 * T); if (fs) { const lab = fs.use.label; fs.use = { label: () => S.day === 3 && S.flags.storm && !S.flags.stormN ? null : lab(), run: fs.use.run }; } }
+  // while a storm errand waits at a fishing spot, the errand takes the prompt
+  MAPS.island.objs.filter(o => o.kind === 'fishspot').forEach(fs => { const lab = fs.use.label, west = fs.x < 12 * T; fs.use = { label: () => S.day === 3 && S.flags.storm && (west ? !S.flags.stormN : !S.flags.stormL) ? null : lab(), run: fs.use.run }; });
   addObj('island', { x: 9.9 * T, y: 33 * T, kind: 'nets', r: 22, on: () => S.day === 3 && S.min >= 1080 && !S.flags.stormN, draw: drawNetsPile, use: { label: () => S.flags.storm ? 'Забрать сети Матвея повыше' : null, run: netsSave } });
   addObj('island', { x: 29.1 * T, y: 39.4 * T, kind: 'fire', on: () => S.day === 6 && S.min >= 1066 && S.min < 1350, draw(c, sx, sy) { drawCampfire(c, sx, sy); } });
   addObj('lamp', { x: 10.2 * T, y: 8.4 * T, kind: 'signal', solid: [-5, -4, 10, 4], r: 16, draw(c, sx, sy) { R(c, sx - 1, sy - 10, 2, 10, '#2c2f38'); R(c, sx - 5, sy - 16, 10, 7, '#3d4250'); R(c, sx - 5, sy - 16, 10, 1, '#555b6a'); R(c, sx + 5, sy - 15, 2, 5, MORSE_ON && MS.lit ? '#fff3b0' : '#c9a24a'); for (let i = 0; i < 3; i++) R(c, sx - 4, sy - 14 + i * 2, 8, 1, '#22262f'); R(c, sx - 4, sy, 8, 1, '#2c2f38'); },
@@ -129,5 +130,5 @@ function journalTab(body) {
   const docs = [];
   [1, 2, 3].forEach(n => { if (S.flags['let' + n]) docs.push(['let' + n, 'Письмо из дома · ' + n, letterBody(n).lines.slice(1, 2).join(' ')]); });
   ['bottle', 'photo', 'act'].forEach(k => { if (has(k)) docs.push([k, TEXTS[k][0], TEXTS[k][1]]); });
-  if (docs.length) { const h2 = document.createElement('div'); h2.className = 'sect'; h2.textContent = 'Письма и находки'; body.appendChild(h2); docs.forEach(([k, t, d]) => { const e = document.createElement('div'); e.className = 'entry open'; e.tabIndex = 0; const b = document.createElement('b'); b.textContent = t; e.append(b, document.createTextNode(d)); e.onclick = () => { UI.close(); openDoc(k); }; body.appendChild(e); }); }
+  if (docs.length) { const h2 = document.createElement('div'); h2.className = 'sect'; h2.textContent = 'Письма и находки'; body.appendChild(h2); docs.forEach(([k, t, d]) => { const e = document.createElement('div'); e.className = 'entry open'; e.tabIndex = 0; const b = document.createElement('b'); b.textContent = t; e.append(b, document.createTextNode(d)); e.onclick = () => { UI.close(); openDoc(k); }; e.onkeydown = ev => { if (ev.key === 'Enter') e.onclick(); }; body.appendChild(e); }); }
 }

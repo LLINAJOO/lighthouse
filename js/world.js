@@ -402,7 +402,10 @@ function drawLens(c, sx, sy) {
   R(c, sx - 1, sy - 36, 2, 4, '#2c2f38');
 }
 function drawMech(c, sx, sy) {
-  R(c, sx - 8, sy - 10, 16, 10, '#3d4250'); const rot = S.lampLit ? G.time * 2 : 0;
-  [[-3, -6, 4], [3, -5, 3]].forEach(([dx, dy, r], i) => { disc(c, sx + dx, sy + dy, r, '#c9a24a'); const a = rot * (i ? -1.3 : 1); R(c, sx + dx + Math.cos(a) * (r - 1) - .5, sy + dy + Math.sin(a) * (r - 1) - .5, 1, 1, '#2c2f38'); });
-  R(c, sx + 5, sy - 13, 3, 4, open('oil') ? '#3a2a1a' : '#c9a24a');
+  // cast-iron housing with two brass gears that turn while the light is on
+  const rot = S.lampLit ? G.time * 2 : 0;
+  R(c, sx - 10, sy - 13, 20, 13, '#1d1a24'); R(c, sx - 9, sy - 12, 18, 11, '#3d4250'); R(c, sx - 9, sy - 12, 18, 1, '#555b6a'); R(c, sx - 9, sy - 2, 18, 1, '#2c2f38');
+  const gear = (gx, gy, r, a, n) => { for (let i = 0; i < n; i++) { const t = a + i * Math.PI * 2 / n; R(c, Math.round(gx + Math.cos(t) * (r + 1) - .5), Math.round(gy + Math.sin(t) * (r + 1) - .5), 1, 1, '#a8822e'); } disc(c, gx, gy, r, '#c9a24a'); disc(c, gx, gy, r - 1.5, '#a8822e'); R(c, gx - .5, gy - .5, 1, 1, '#2c2f38'); R(c, Math.round(gx + Math.cos(a) * (r - 1) - .5), Math.round(gy + Math.sin(a) * (r - 1) - .5), 1, 1, '#f2d27a'); };
+  gear(sx - 3, sy - 7, 3.5, rot, 8); gear(sx + 4, sy - 6, 2.5, -rot * 1.4 + .3, 6);
+  R(c, sx + 5, sy - 16, 3, 3, '#1d1a24'); R(c, sx + 6, sy - 15, 1, 2, open('oil') ? '#3a2a1a' : '#c9a24a');
 }

@@ -111,6 +111,8 @@ function timeline(v) {
   if (v.leave != null) { const L = v.legs[v.legs.length - 1]; const pts = [pos, ...(L.via || []).slice().reverse(), v.dock], len = polyLen(pts); seg.push({ k: 'walk', t0: t, t1: t + len, pts, len }); t += len; seg.push({ k: 'out', t0: t, t1: t + SAIL }); }
   return (v.tl = seg);
 }
+// when a visitor reaches a stage of their visit: 'walk' (stepped on the pier) or 'stand' (arrived where they wait)
+function visitAt(npc, day, kind, n = 0) { const v = VISITS.find(v => v.npc === npc && v.day === day); if (!v) return 1e9; const segs = timeline(v).filter(s => s.k === kind); return segs[n] ? Math.ceil(segs[n].t0) : 1e9; }
 function visitsNow() {
   const npcs = [], boats = [], m = S.min;
   for (const v of VISITS) {

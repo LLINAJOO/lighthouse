@@ -123,7 +123,7 @@ const UI = {
     if (S.q.shells === 1) add(`Ракушки для Сони ${Math.min(5, S.inv.shell || 0)}/5`, false, 1);
     if (S.q.shells === 2 && S.day >= 6) add('Забрать картину у Сони', false, 1);
     if (S.flags.cat === 'kept' && S.flags.catFed !== S.day) add(catName() + ' ждёт рыбу на ужин', false, 1);
-    if (S.flags.cat !== 'kept' && S.flags.cat !== 'gone' && S.day >= 3) add('У дверей маяка сидит рыжий кот', false, 1);
+    if (S.flags.cat !== 'kept' && S.flags.cat !== 'gone' && (S.day > 3 || (S.day === 3 && S.min >= 420))) add('У дверей маяка сидит рыжий кот', false, 1);
     if (S.q.chick === 1) add(P.carry === 'chick' ? 'Отнести птенца к скалам с чайками' : 'Найти птенца в лесу', false, 1);
     if (has('map') && !S.flags.dug) add('Крестик на карте: утёс на северо-западе', false, 1);
     if (S.day === 6 && S.flags.legend && S.min >= 1230 && !S.flags.whalesSeen) add('Ночью — на смотровую площадку', false, 1);
@@ -213,8 +213,8 @@ function updatePlayer(dt) {
   if (P.act) { P.act.t += dt; if (Math.random() < dt * 10) actParticles(); if (P.act.t >= P.act.dur) { const f = P.act.fn; P.act = null; f && f(); } }
   if (P.reading > 0) P.reading -= dt;
   // exits
-  if (MAP.id === 'house' && P.y > 11 * T - 2) exitHouse();
-  if (MAP.id === 'shed' && P.y > 9 * T - 2) exitShed();
+  if (MAP.id === 'house' && P.y > 11 * T + 3 && Math.abs(P.x - 9 * T) < 16) exitHouse(); // only through the door gap
+  if (MAP.id === 'shed' && P.y > 9 * T + 3 && Math.abs(P.x - 6 * T) < 16) exitShed();
   if (MAP.id === 'island' && Math.hypot(P.x - 84 * T, P.y - 22 * T) < 5 * T) unlock('explorer');
   // target
   G.target = null;
@@ -308,17 +308,17 @@ function checkEvents() {
   tr('noon', S.min >= 720 && S.day === 5, () => toast('Полдень. В туман огонь можно зажечь уже сейчас'));
   tr('evening', S.min >= 1020 && S.day !== 5, () => toast('17:00 — пора зажигать маяк'));
   if (S.day === 2) tr('terns', S.min >= 420, () => toast('На западный пляж прилетели полярные крачки'));
-  if (S.day === 2) tr('mat', S.min >= 540, () => toast('К пирсу причалила лодка рыбака'));
+  if (S.day === 2) tr('mat', S.min >= visitAt('matvey', 2, 'walk'), () => toast('К пирсу причалила лодка рыбака'));
   if (S.day === 3) {
     tr('storm', S.min >= 1080, () => { S.weather = 'storm'; UI.hud(); toast('Начинается шторм'); });
     tr('outage', S.min >= 1140, () => { S.power = false; const was = S.lampLit; S.lampLit = false; const l = task('lamp'); if (l.done) { l.done = false; S.done--; } S.tasks.splice(S.tasks.indexOf(l), 0, { id: 'gen', text: TASK.gen.t, c: 0, done: false }); S.total++; UI.tasks(); say([[HERO, was ? 'Свет погас! Огонь маяка потух — в такую-то ночь.' : 'Свет погас во всём доме.'], [HERO, 'Генератор в сарае на востоке. Скорее туда, а потом — наверх, снова зажигать огонь.']]); });
   }
-  if (S.day === 3) tr('cat', S.min >= 420 && !S.flags.cat, () => toast('У дверей маяка мяукает рыжий кот'));
+  if (S.day === 3) tr('cat', S.min >= 420 && !S.flags.cat, () => { toast('У дверей маяка мяукает рыжий кот'); UI.tasks(); });
   if (S.flags.cat === 'kept' && S.day >= 3) tr('catfood', S.min >= 720 && S.flags.catFed !== S.day, () => toast(catName() + ' ходит за вами и выразительно смотрит. Похоже, ждёт рыбу'));
-  if (S.day === 4) tr('post', S.min >= 600, () => toast('Приплыла почтовая лодка'));
-  if (S.day === 5) tr('insp', S.min >= 600, () => toast('Инспектор ждёт у дверей маяка'));
-  if (S.day === 6) { tr('ship', S.min >= 600, () => toast('«Северянка» у пирса')); tr('whale', S.min >= 1230, () => { toast('С моря доносится странное пение…'); UI.tasks(); }); tr('matEve', S.min >= 1080, () => toast('Матвей ждёт у пирса. Хочет что-то рассказать')); }
-  if (S.day === 7) { tr('radio', S.min >= 1020, () => { toast('Рация в фонарной мигает'); UI.tasks(); }); tr('farewell', S.min >= 1080, () => toast('Все собрались у пирса')); }
+  if (S.day === 4) tr('post', S.min >= visitAt('lida', 4, 'walk'), () => toast('Приплыла почтовая лодка'));
+  if (S.day === 5) tr('insp', S.min >= visitAt('gromov', 5, 'stand'), () => toast('Инспектор ждёт у дверей маяка'));
+  if (S.day === 6) { tr('ship', S.min >= visitAt('belov', 6, 'walk'), () => toast('«Северянка» у пирса')); tr('whale', S.min >= 1230, () => { toast('С моря доносится странное пение…'); UI.tasks(); }); tr('matEve', S.min >= visitAt('matvey', 6, 'stand'), () => toast('Матвей ждёт у пирса. Хочет что-то рассказать')); }
+  if (S.day === 7) { tr('radio', S.min >= 1020, () => { toast('Рация в фонарной мигает'); UI.tasks(); }); tr('farewell', S.min >= Math.max(visitAt('matvey', 7, 'stand', 1), visitAt('lida', 7, 'stand', 1), visitAt('sonya', 7, 'stand', 1)), () => toast('Все собрались у пирса')); }
   if (S.min >= 1440) {
     if (S.day === 7) { tr('late', true, () => startEnding()); }
     else tr('faint', true, () => say([[HERO, 'Глаза слипаются... Пора спать, где бы я ни был.']], sleep));
@@ -449,7 +449,7 @@ function drawHero() {
   const cam = G.cam, x = Math.round(P.x - cam.x), y = Math.round(P.y - cam.y);
   const acting = !!P.act || P.reading > 0;
   drawPerson(ctx, x, y, LOOKS.hero, { dir: P.dir, frame: P.frame, moving: P.moving, act: acting, t: G.time, sdx: G.sh.dx * 2, sit: !!P.sit, noShadow: !!P.sit });
-  if (G.caught && G.time - G.caught.t < 1.8) { const k = G.time - G.caught.t, hop = Math.round(Math.min(1, k * 4) * 8 + Math.sin(k * 9) * (k < .8 ? 1 : 0)); ctx.drawImage(icon(G.caught.id), x - 8, y - 42 - hop); }
+  if (G.caught && G.time - G.caught.t < 1.8) { const k = G.time - G.caught.t, hop = Math.round(Math.min(1, k * 4) * 8 + Math.sin(k * 9) * (k < .8 ? 1 : 0)); ctx.drawImage(icon(G.caught.id), x - 8, y - 38 - hop); }
   const [dx, dy] = DIRV[P.dir];
   if (P.act) {
     const k = P.act.kind, t = P.act.t, hx = x + dx * 6, hy = y - 8 + dy * 3;
@@ -462,7 +462,7 @@ function drawHero() {
   if (P.reading > 0) { R(ctx, x - 4, y - 12, 8, 6, '#f2e6cc'); R(ctx, x - 3, y - 10, 6, 1, '#c9b48a'); }
   if (P.fish) { R(ctx, x + dx * 4, y - 10, 1, 1, '#8a5a32'); }
   if (P.carry === 'crate') drawCrate(ctx, x, y - 22, { a: 0, dx: 0, dy: 0 }, false);
-  if (P.carry === 'chick') { R(ctx, x - 3, y - 25, 6, 4, '#d8d8d0'); R(ctx, x + 1, y - 27, 3, 3, '#e8e8e0'); R(ctx, x + 4, y - 26, 1, 1, '#f0b23a'); }
+  if (P.carry === 'chick') { R(ctx, x - 4, y - 24, 8, 6, '#1d1a24'); R(ctx, x - 3, y - 23, 6, 4, '#d8d8d0'); R(ctx, x + 1, y - 25, 3, 3, '#e8e8e0'); R(ctx, x + 4, y - 24, 1, 1, '#f0b23a'); R(ctx, x + 2, y - 24, 1, 1, '#2c2f38'); }
 }
 function drawFishing(cam) {
   const f = P.fish, [dx, dy] = DIRV[P.dir];
@@ -492,6 +492,7 @@ function drawLighting(cam) {
     if (S.lampLit) L.push([lh.x, lh.topY, 34 * fl, 1]);
     for (const f of G.flies) L.push([f.x, f.y, 6, .6 + .4 * Math.sin(f.t * 4)]);
     if (S.day === 6 && S.min >= 1230) for (let k = 0; k < 3; k++) L.push([49 * T + k * 34, 7.6 * T + k * 9, 34, .55]);
+    if (S.day === 6 && S.min >= 1066 && S.min < 1350) L.push([29.1 * T, 39.4 * T - 4, 46 * fl, .95]); // Matvey's bonfire
   }
   if (MAP.id === 'cliffs') L.push([12.6 * T, 32.4 * T, 64 * fl, 1], [8.6 * T, 30.6 * T, 30 * fl, nyuraHere() ? .3 : .9]);
   if (MAP.id === 'shed') { L.push([6 * T, 3 * T, (S.power ? 70 : 24) * fl, S.power ? 1 : .5], [8.5 * T, 2.2 * T, 34, .6]); }

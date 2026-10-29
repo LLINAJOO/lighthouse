@@ -26,7 +26,7 @@
   </div>
 </div>
 <div id="prompt" class="pix" hidden></div>
-<div id="toasts"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
 <div id="dialog" class="pix" hidden><canvas id="portrait" width="20" height="22"></canvas><div><div class="who" id="dWho"></div><div class="txt" id="dTxt"></div></div><span class="more">▼</span></div>
 <div id="ask" hidden><div class="card pix" role="dialog" aria-modal="true" aria-labelledby="askT"><div id="askT"></div><div class="row" id="askBtns"></div></div></div>
 <div id="nameBox" hidden><div class="card pix" role="dialog" aria-modal="true" aria-labelledby="nameT"><div id="nameT">Как назовёте кота?</div><input id="catName" type="text" maxlength="14" autocomplete="off" aria-labelledby="nameT"><div class="row"><button class="btn primary" id="nameOk" type="button">Готово</button></div></div></div>
@@ -49,7 +49,7 @@
   <h1>Light <span>House</span></h1>
   <p>Семь дней на маяке. Последняя смена перед дорогой домой.</p>
   <div class="row"><button class="btn primary" id="bStart" type="button">Начать смену</button><button class="btn" id="bCont" type="button" hidden>Продолжить</button></div>
-  <small>WASD или стрелки · Shift — бег · E — действие · I — сумка · J — журнал</small>
+  <small>WASD или стрелки · Shift — бег · E — действие · I — сумка · J — дневник · M — карта</small>
 </div>
 <div id="credits" hidden><div id="roll"></div></div>
 <button class="btn primary" id="endbtn" type="button" hidden>Начать заново</button>

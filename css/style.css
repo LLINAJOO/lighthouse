@@ -271,3 +271,5 @@ body.quiet #hud,body.quiet #prompt,body.quiet #toasts{opacity:0;transition:opaci
 #morse .key.on{background:var(--lamp);color:#2a1b08}
 #doc{z-index:12}
 #diarybtn{position:fixed;right:calc(16px + 170px);bottom:16px;z-index:8}
+/* keyboard focus for everything clickable */
+button:focus-visible,[tabindex]:focus-visible,#souv:focus-visible{outline:3px solid var(--lamp);outline-offset:2px}
