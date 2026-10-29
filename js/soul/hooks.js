@@ -116,9 +116,12 @@ function soulInit() {
   renderDoc = function () {
     if (DOC.id === 'diary') { const body = $('#docBody'); body.innerHTML = ''; $('#docFlip').hidden = true; return renderDiary(body); }
     if (DOC.id === 'letter' && latestLetter()) DOC.id = latestLetter();
+    if (DOC.id === 'painting' || DOC.id === 'easelpic') { const body = $('#docBody'); body.innerHTML = ''; $('#docFlip').hidden = true; return renderPainting(body, DOC.id); }
     if (/^let\d$/.test(DOC.id)) { const body = $('#docBody'); body.innerHTML = ''; $('#docFlip').hidden = true; return renderLetter(body, +DOC.id[3]); }
     return _rd();
   };
+  DOC_NAMES.painting = 'Картина Сони'; DOC_NAMES.easelpic = 'Картина на мольберте'; ITEMS.painting.use = 'Рассмотреть';
+  { const e = MAPS.island.objs.find(o => o.kind === 'easel'); if (e) { e.r = 16; e.use = { label: () => sonyaPainting() ? 'Посмотреть на картину Сони' : null, run: () => openDoc('easelpic') }; } }
   DOC_NAMES.let1 = 'Письмо из дома'; DOC_NAMES.let2 = 'Письмо из дома'; DOC_NAMES.let3 = 'Письмо из дома';
 }
 function journalTab(body) {

@@ -44,7 +44,7 @@ html,body{height:100%;margin:0;background:var(--sea);color:var(--ink);overflow:h
 .toast canvas{width:24px;height:24px;image-rendering:pixelated}
 @keyframes tin{from{transform:translateY(-8px);opacity:0}}
 #dialog{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(720px,calc(100vw - 32px));padding:12px 14px;display:flex;gap:14px;cursor:pointer;z-index:4;box-sizing:border-box}
-#portrait{flex:none;width:80px;height:88px;image-rendering:pixelated;background:var(--panel-2);border:2px solid var(--line)}
+#portrait{flex:none;width:96px;height:96px;align-self:flex-start;image-rendering:pixelated;background:var(--panel-2);border:2px solid var(--line)}
 #dialog .who{font-family:var(--f-display);font-weight:700;color:var(--lamp);font-size:17px;margin-bottom:3px}
 #dialog .txt{font-size:18px;line-height:1.35;min-height:3.9em;max-width:60ch}
 #dialog .more{position:absolute;right:14px;bottom:8px;color:var(--lamp);animation:bob 1s steps(2) infinite}
@@ -110,16 +110,16 @@ html,body{height:100%;margin:0;background:var(--sea);color:var(--ink);overflow:h
 .paper{--pp:#f3e9d2;width:100%;box-sizing:border-box;background:var(--pp);color:#3b2f22;padding:22px 26px;box-shadow:0 10px 30px rgba(0,0,0,.45);border-radius:2px;transform:rotate(-.6deg)}
 .paper.lined{background-image:repeating-linear-gradient(transparent 0 33px,#c9d6e8 33px 34px);background-color:#f6f0e2}
 .paper.aged{background:radial-gradient(circle at 18% 22%,rgba(150,110,50,.18),transparent 30%),radial-gradient(circle at 82% 78%,rgba(120,80,30,.22),transparent 34%),linear-gradient(#ead7a8,#dcc28a);transform:rotate(.8deg)}
-.hw{font-family:"Caveat","Segoe Script","Comic Sans MS",cursive;font-size:clamp(22px,4.6vw,27px);line-height:1.25;margin:0 0 8px;max-width:none}
+.hw{font-family:var(--f-body);font-size:clamp(14px,3.3vw,17px);line-height:1.55;margin:0 0 8px;max-width:none}
 .hw.sig{text-align:right;margin-top:6px}
-.hw.ps{font-size:clamp(18px,3.8vw,21px);color:#6b5a44}
+.hw.ps{font-size:clamp(13px,3vw,15px);color:#6b5a44}
 .paper canvas.kid{display:block;width:min(300px,100%);height:auto;margin:6px auto 0}
 .photo{background:#f7f2e6;padding:12px 12px 34px;box-shadow:0 10px 30px rgba(0,0,0,.5);transform:rotate(1.2deg);width:min(420px,100%);box-sizing:border-box}
 .photo canvas{width:100%;height:auto;image-rendering:pixelated;display:block}
 .photo.back{min-height:220px;padding:30px 24px;background:#efe7d6;display:grid;align-content:center;transform:rotate(-1deg)}
-.pencil{font-family:"Caveat",cursive;font-size:27px;color:#6c6a66;margin:0 0 4px}
+.pencil{font-family:var(--f-body);font-size:16px;color:#6c6a66;margin:0 0 4px}
 .doccap{margin:0;color:var(--paper);font-size:15px;text-align:center;max-width:46ch}
-.paper.form{font-family:"Courier New",monospace;font-size:14px;transform:none;padding:20px 22px}
+.paper.form{font-family:var(--f-body);font-size:13px;transform:none;padding:20px 22px}
 .fhead{font-size:12px;letter-spacing:.08em;color:#6b5a44}
 .ftitle{font-size:18px;font-weight:700;margin:6px 0 2px}
 .fmeta{font-size:13px;color:#6b5a44;margin-bottom:12px}
@@ -133,7 +133,7 @@ html,body{height:100%;margin:0;background:var(--sea);color:var(--ink);overflow:h
 .ffoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
 .ftotal{font-weight:700}
 .stamp{border:3px solid #c8303b;color:#c8303b;padding:4px 10px;transform:rotate(-8deg);font-weight:700;letter-spacing:.08em;opacity:.85}
-.hw.sign{margin:0;font-size:30px}
+.hw.sign{margin:0;font-size:20px}
 .toast.atl{border-color:#8fd0b9;background:#1f2e2c}
 .toast.atl small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8fd0b9}
 .rsub{font-size:14px;color:var(--muted);margin:-2px 0 8px;max-width:62ch}
@@ -226,7 +226,7 @@ body.touch .btn kbd{display:none}
   #btns{flex-direction:column}
   .btn{font-size:14px;padding:5px 9px}
   #dialog .txt{font-size:16px}
-  #portrait{width:60px;height:66px}
+  #portrait{width:72px;height:72px}
 }
 @media (prefers-reduced-motion:reduce){.toast,#dialog .more{animation:none}#fade,#daycard{transition:none}}
 
@@ -239,7 +239,7 @@ body.touch .btn kbd{display:none}
 #tipbox.off{opacity:0;pointer-events:none}
 body.quiet #hud,body.quiet #prompt,body.quiet #toasts{opacity:0;transition:opacity 1.2s;pointer-events:none}
 #hud,#prompt,#toasts{transition:opacity .6s}
-#qcap{position:fixed;left:50%;bottom:calc(16% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;font-family:"Caveat","Segoe Script",cursive;font-size:clamp(24px,4.4vw,32px);color:#f6ead0;text-shadow:0 2px 8px rgba(0,0,0,.8);text-align:center;max-width:calc(100vw - 40px);transition:opacity 1s;pointer-events:none}
+#qcap{position:fixed;left:50%;bottom:calc(16% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;font-family:var(--f-body);font-size:clamp(15px,2.6vw,19px);color:#f6ead0;text-shadow:0 2px 8px rgba(0,0,0,.8);text-align:center;max-width:calc(100vw - 40px);transition:opacity 1s;pointer-events:none}
 #qcap.off{opacity:0}
 .chartwrap{display:grid;gap:10px}
 .chartwrap canvas{width:100%;height:auto;image-rendering:pixelated;border:2px solid #7a5a32;box-shadow:0 6px 18px rgba(0,0,0,.35);background:#e9dcbc}
@@ -255,9 +255,9 @@ body.quiet #hud,body.quiet #prompt,body.quiet #toasts{opacity:0;transition:opaci
 #souvHint{font-size:14px;color:var(--muted);min-height:1.4em;margin-bottom:8px}
 .entry ul{margin:6px 0 0;padding-left:18px;color:#bfd0e6;font-size:15px}
 .paper.diary{background-image:repeating-linear-gradient(transparent 0 33px,#c9d6e8 33px 34px);background-color:#f6f0e2;position:relative}
-.paper.diary .dh{font-family:"Caveat",cursive;font-size:20px;color:#8a6a44;display:flex;justify-content:space-between;margin-bottom:6px}
+.paper.diary .dh{font-family:var(--f-body);font-size:13px;color:#8a6a44;display:flex;justify-content:space-between;margin-bottom:6px}
 .paper.diary ul{margin:4px 0 0;padding-left:22px}
-.paper.diary li{font-family:"Caveat","Segoe Script",cursive;font-size:clamp(20px,4vw,24px);line-height:1.3;color:#3b4a6b}
+.paper.diary li{font-family:var(--f-body);font-size:clamp(13px,3vw,15px);line-height:1.5;color:#3b4a6b}
 .paper.diary canvas.doodle{display:block;width:min(240px,70%);height:auto;margin:10px auto 0;image-rendering:pixelated}
 .pager{display:flex;gap:10px;justify-content:center;align-items:center;font-size:14px;color:var(--muted)}
 #morse{position:fixed;inset:0;display:grid;place-items:center;background:rgba(5,8,15,.78);z-index:6}
@@ -273,3 +273,10 @@ body.quiet #hud,body.quiet #prompt,body.quiet #toasts{opacity:0;transition:opaci
 #diarybtn{position:fixed;right:calc(16px + 170px);bottom:16px;z-index:8}
 /* keyboard focus for everything clickable */
 button:focus-visible,[tabindex]:focus-visible,#souv:focus-visible{outline:3px solid var(--lamp);outline-offset:2px}
+/* ---------- Sonya's painting viewer ---------- */
+.pframe{width:min(560px,100%);box-sizing:border-box;border:10px solid #8a5a32;border-image:linear-gradient(135deg,#b07a48,#6f4a2d) 1;background:#2a1e14;box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 0 2px #3a2614}
+.pview{overflow:auto;aspect-ratio:3/2;cursor:grab;touch-action:none;scrollbar-width:thin}
+.pview:active{cursor:grabbing}
+.pview canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.pzoom{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--paper);font-size:14px}
+.pzoom .btn{min-width:44px;font-size:18px}

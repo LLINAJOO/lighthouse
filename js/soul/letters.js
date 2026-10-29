@@ -46,7 +46,7 @@ function drawKidDoodle(x, w, h, kind) {
   x.imageSmoothingEnabled = true; x.clearRect(0, 0, w, h);
   const sea = () => { for (let i = 0; i < 4; i++) crayon(x, Array.from({ length: 16 }, (_, k) => [k * 10, h - 14 + i * 3 + Math.sin(k * 1.3 + i) * 2]), '#3b7ea0', 1.6, 70 + i); };
   const sun = () => { x.strokeStyle = '#f2a03a'; x.lineWidth = 2; x.beginPath(); x.arc(w - 18, 16, 8, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) crayon(x, [[w - 18 + Math.cos(i) * 11, 16 + Math.sin(i) * 11], [w - 18 + Math.cos(i) * 15, 16 + Math.sin(i) * 15]], '#f2a03a', 1.4, 80 + i); };
-  const label = (t, px, py, col) => { x.fillStyle = col || '#9b4d6a'; x.font = 'bold 13px Caveat, "Comic Sans MS", cursive'; x.fillText(t, px, py); };
+  const label = (t, px, py, col) => { x.fillStyle = col || '#9b4d6a'; x.font = '9px Monocraft, monospace'; x.fillText(t, px, py); };
   if (kind === 'cat') {
     sun(); crayon(x, [[40, h - 16], [40, 40], [70, 40], [70, h - 16]], '#e58a3a', 3, 1); crayon(x, [[42, 40], [45, 30], [50, 40]], '#e58a3a', 3, 2); crayon(x, [[60, 40], [65, 30], [68, 40]], '#e58a3a', 3, 3);
     x.fillStyle = '#2c2f38'; x.fillRect(48, 48, 3, 3); x.fillRect(60, 48, 3, 3); crayon(x, [[70, h - 20], [86, h - 34], [84, h - 48]], '#e58a3a', 3, 4); crayon(x, [[30, 54], [46, 56]], '#2c2f38', 1, 5); crayon(x, [[64, 56], [80, 54]], '#2c2f38', 1, 6);

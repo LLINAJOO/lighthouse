@@ -77,12 +77,14 @@ const DLG = {
     if (!l) { $('#dialog').hidden = true; this.cur = null; const f = this.done; this.done = null; if (f) f(); return; }
     this.cur = { who: l[0], text: l[1], letter: l[2] }; this.shown = 0; this.vt = 0; $('#dTxt').textContent = '';
     $('#dialog').hidden = false; $('#dialog').classList.toggle('letter', !!l[2]); $('#dWho').textContent = l[0];
-    const pc = $('#portrait').getContext('2d'); pc.clearRect(0, 0, 20, 22);
-    const look = NAME_LOOK[l[0]];
-    if (look) drawPerson(pc, 10, 22, LOOKS[look], { dir: 0, noShadow: true });
-    else { const ic = icon(l[0] === 'Рация' ? 'compass' : l[0] === 'Подсказка' ? 'lantern' : l[0].startsWith('Журнал') ? 'map' : l[0] === 'Указатель' ? 'map' : 'letter'); pc.drawImage(ic, 2, 3); }
+    const pc = $('#portrait').getContext('2d'); pc.imageSmoothingEnabled = false; pc.clearRect(0, 0, 48, 48);
+    const look = this.look = NAME_LOOK[l[0]] || null;
+    if (look && PORTRAIT[look]) drawPortrait(pc, look, true, G.time);
+    else if (look) drawPerson(pc, 24, 40, LOOKS[look], { dir: 0, noShadow: true });
+    else { const ic = icon(l[0] === 'Рация' ? 'compass' : l[0] === 'Подсказка' ? 'lantern' : l[0].startsWith('Журнал') ? 'map' : l[0] === 'Указатель' ? 'map' : 'letter'); pc.drawImage(ic, 8, 8, 32, 32); }
   },
   update(dt) {
+    if (this.cur && this.look && PORTRAIT[this.look]) drawPortrait($('#portrait').getContext('2d'), this.look, this.shown < this.cur.text.length, G.time);
     if (!this.cur || this.shown >= this.cur.text.length) return;
     const before = Math.floor(this.shown); this.shown = Math.min(this.cur.text.length, this.shown + dt * 45); const now = Math.floor(this.shown);
     $('#dTxt').textContent = this.cur.text.slice(0, now);

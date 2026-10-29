@@ -175,7 +175,7 @@ function buildExtras2() {
   addObj('island', { x: 89 * T + 7, y: 37.6 * T + 2, kind: 'birds', on: () => BIRD_SPOTS[6].on(), draw(c, sx, sy) { drawOwl(c, sx, sy - 36, G.time); } });
   // new fishing spots
   addObj('island', { x: 84.5 * T, y: 25.4 * T, kind: 'fishspot', r: 18, draw(c, sx, sy) { R(c, sx - 5, sy - 2, 10, 2, '#8a6a42'); R(c, sx - 5, sy, 1, 2, '#5d3e24'); R(c, sx + 4, sy, 1, 2, '#5d3e24'); }, use: { label: () => 'Рыбачить на озере', run: () => startFishing('pond') } });
-  addObj('island', { x: 98.4 * T, y: 32.5 * T, kind: 'fishspot', r: 18, draw(c, sx, sy) { drawRock(c, sx - 8, sy + 2, G.sh, false); }, use: { label: () => 'Рыбачить со скал', run: () => startFishing('crags') } });
+  addObj('island', { x: 98.4 * T, y: 32.5 * T, kind: 'fishspot', r: 18, draw(c, sx, sy) { drawRock(c, sx - 8, sy + 2, G.sh, true, 5); }, use: { label: () => 'Рыбачить со скал', run: () => startFishing('crags') } });
 }
 
 // ---------- documents you can open ----------
@@ -236,7 +236,7 @@ function drawKidPicture(x, w, h) {
   const px = 78; x.strokeStyle = '#2c2f38'; x.lineWidth = 1.6; x.beginPath(); x.arc(px, 44, 5, 0, 7); x.stroke();
   crayon(x, [[px, 49], [px, 64]], '#2c2f38', 1.6, 50); crayon(x, [[px - 8, 54], [px + 8, 54]], '#2c2f38', 1.6, 51); crayon(x, [[px, 64], [px - 5, 74]], '#2c2f38', 1.6, 52); crayon(x, [[px, 64], [px + 5, 74]], '#2c2f38', 1.6, 53);
   crayon(x, [[px - 6, 40], [px + 6, 40], [px + 4, 36], [px - 4, 36], [px - 6, 40]], '#c8553d', 2, 54);
-  x.fillStyle = '#9b4d6a'; x.font = 'bold 13px Caveat, "Comic Sans MS", cursive'; x.fillText('ПАПА', px + 10, 52);
+  x.fillStyle = '#9b4d6a'; x.font = '9px Monocraft, monospace'; x.fillText('ПАПА', px + 10, 52);
   x.fillStyle = '#c8303b'; x.fillText('♥', px + 18, 66);
 }
 function drawOldPhoto(x, w, h) {

@@ -42,7 +42,7 @@ const ITEMS = {
   oilcan: { n: 'Маслёнка', d: 'Полная. Для механизма вращения в фонарной.' },
   wrench: { n: 'Гаечный ключ', d: 'Нашёлся в сарае. Ржавый, но крепкий.' },
   wood: { n: 'Дрова', d: 'Сухие ветки из леса. Сложить у печи на кухне.' },
-  fish: { n: 'Рыба', d: 'Свежая треска. Из неё выйдет хорошая уха.' },
+  fish: { n: 'Рыба', d: 'Свежий улов. Из рыбы выйдет хорошая уха, а кот будет счастлив. Какие виды уже пойманы — в атласе.' },
   berries: { n: 'Брусника', d: 'Кислая, холодная, с лесных кустов.', use: 'Съесть' },
   tea: { n: 'Чай Матвея', d: 'Заваривается на печи вечером.' },
   shell: { n: 'Ракушка', d: 'Обычная ракушка с пляжа. Соне такие пригодятся.' },
@@ -148,7 +148,7 @@ function buildWorld() {
     } else if (forest && h > .965 && !busy.has(key(x, y))) {
       busy.add(key(x, y)); WORLD.branchSpots.push([x * T + 8, y * T + 10]);
     } else if (!forest && h > .985) {
-      busy.add(key(x, y)); addObj('island', { x: x * T + 8, y: y * T + 12, kind: 'rock', solid: [-5, -3, 10, 3], draw(c, sx, sy) { drawRock(c, sx, sy, G.sh, false); } });
+      busy.add(key(x, y)); addObj('island', { x: x * T + 8, y: y * T + 12, kind: 'rock', solid: [-5, -3, 10, 3], draw(c, sx, sy) { drawRock(c, sx, sy, G.sh, false, x * 31 + y * 7); } });
     }
   }
   // extra branch spots on forest edges if few

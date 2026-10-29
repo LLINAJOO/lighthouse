@@ -434,7 +434,7 @@ function buildIslets() {
   addObj('cliffs', { x: 25.4 * T, y: 8.6 * T, kind: 'bench', bench: 'cliffs', solid: [-9, -4, 18, 4], draw: drawBench });
   { const b = cm.objs[cm.objs.length - 1]; b.use = { label: () => 'Посидеть на скамейке', run: () => sitDown(b) }; }
   BENCH_THOUGHTS.cliffs = ['Отсюда видно маяк — крошечный, как свечка. И вокруг только море.', 'Ветер тут такой, что шапку держишь рукой. Птицы кружат прямо над головой.'];
-  addObj('cliffs', { x: 15.2 * T, y: 7.4 * T, kind: 'cairn', solid: [-5, -3, 10, 3], draw(c, sx, sy) { shadowE(c, sx, sy, 6, 2, G.sh); [[0, 0, 10, 4], [1, -4, 8, 4], [2, -7, 6, 3], [3, -9, 4, 2]].forEach(([dx, dy, w, h], i) => R(c, sx - 5 + dx, sy - 4 + dy, w, h, i % 2 ? '#9ca1aa' : '#7d828c')); } });
+  addObj('cliffs', { x: 15.2 * T, y: 7.4 * T, kind: 'cairn', solid: [-5, -3, 10, 3], draw(c, sx, sy) { drawCairn(c, sx, sy, G.sh); } });
   [[17.6, 9.8, 0], [23.2, 6.6, 1], [21.4, 10.4, 2]].forEach(([x, y, s]) => addObj('cliffs', { x: x * T, y: y * T, kind: 'burrow', layer: -1, draw(c, sx, sy) { ell(c, sx, sy - 2, 4, 2, '#2a2e22'); if (Math.sin(G.time * .5 + s * 2) > -.3) drawPuffin(c, sx + 1, sy - 2, G.time, s); } }));
   addObj('cliffs', { get x() { return G.cam.x + VW / 2; }, get y() { return G.cam.y + VH + 60; }, kind: 'flyers', draw(c) { const cx = 20 * T - G.cam.x, cy = 14 * T - G.cam.y; for (let i = 0; i < 22; i++) { const a = G.time * (.35 + (i % 4) * .07) + i * 1.7, rr = 80 + (i % 5) * 34, bx = cx + Math.cos(a) * rr, by = cy + Math.sin(a * 1.2) * rr * .6 - 30, sp = BIRDS[i % 3 ? 'kittiwake' : 'fulmar']; drawGrid(c, bx, by + 4, sp.fly[Math.sin(G.time * 9 + i) > 0 ? 0 : 1], sp.pal, Math.sin(a) < 0); } } });
 }
@@ -476,7 +476,7 @@ function spawnIslets() {
   const spots = [[17.2, 12.6], [20.4, 11.6], [27.2, 13.6], [30.4, 12.4], [9.4, 14.2]].sort(() => rnd() - .5).slice(0, 4);
   spots.forEach(([x, y]) => {
     const o = addObj('seals', { daily: 1, x: x * T, y: y * T, kind: 'stone', r: 14, flipped: false, found: null, ft: 0, solid: null, draw(c, sx, sy) {
-      if (!o.flipped) { shadowE(c, sx, sy, 6, 2, G.sh); R(c, sx - 6, sy - 6, 12, 6, '#7d828c'); R(c, sx - 5, sy - 7, 10, 2, '#9ca1aa'); R(c, sx - 3, sy - 7, 3, 1, '#c3c7cd'); return; }
+      if (!o.flipped) { drawBoulder(c, sx, sy, Math.round(o.x + o.y), 'flat', false, G.sh); return; }
       R(c, sx + 5, sy - 4, 9, 4, '#6c717a'); R(c, sx - 6, sy - 4, 12, 4, '#5a4a3a');
       if (o.found && G.time - o.ft < 6) { const t = G.time; if (o.found === 'crab') drawCrab(c, sx, sy - 1, t); else if (o.found === 'starfish') drawStarfish(c, sx, sy - 2, t); else if (o.found === 'hermit') { R(c, sx - 2 + Math.round(Math.sin(t) * 2), sy - 5, 5, 4, '#f3d2c0'); R(c, sx + 3 + Math.round(Math.sin(t) * 2), sy - 3, 2, 2, '#d9473a'); } else { disc(c, sx, sy - 3, 3, '#5a2a5a'); for (let i = 0; i < 8; i++) R(c, sx + Math.round(Math.cos(i) * 4), sy - 3 + Math.round(Math.sin(i) * 4), 1, 1, '#7a3a7a'); } }
     } });
