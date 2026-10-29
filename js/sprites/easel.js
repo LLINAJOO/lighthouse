@@ -45,7 +45,7 @@ function easelSprite(d, shells, ex = {}) {
 function drawEasel(c, sx, sy) {
   if (!sonyaPainting()) return;
   c.fillStyle = 'rgba(20,28,40,.25)'; c.beginPath(); c.ellipse(sx, sy, 8, 2.2, 0, 0, 7); c.fill();
-  c.drawImage(easelSprite(Math.max(4, Math.min(7, S.day)), (S.q.shells | 0) >= 2, { me: S.flags.eve6 === 'sonya' && S.day >= 6 && !(S.day === 6 && G.quiet), cat: catKept() && S.day >= 7 }), Math.round(sx) - 13, Math.round(sy) - 28);
+  c.drawImage(easelSprite(Math.max(4, Math.min(7, S.day)), (S.q.shells | 0) >= 2, { me: S.flags.eve6s && S.day >= 6 && !(S.day === 6 && G.quiet), cat: catKept() && S.day >= 7 }), Math.round(sx) - 13, Math.round(sy) - 28);
 }
 // folded easel on her back and the wrapped canvas under her arm while she walks
 function drawSonyaCarry(c, x, y, dir, layer) {

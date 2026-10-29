@@ -19,11 +19,10 @@ function soulEvents() {
   const f = S.flags, d = S.day, m = S.min, tr = (k, cond, fn) => { if (!G.trig[k] && cond) { G.trig[k] = 1; fn(); } };
   if (d === 3) {
     tr('stormAsk', m >= 1086 && !f.storm, stormAsk);
-    tr('stormLate', m >= 1170 && (f.storm === 'lida' || f.storm === 'nets') && !f.stormRes, () => { f.stormRes = 'late'; G.guide = null; UI.tasks(); toast(f.storm === 'lida' ? 'Огонёк в море пропал. Лида ушла за косу пережидать' : 'Сети Матвея смыло волной'); });
   }
   if (d === 2) tr('ship', m >= 1260 && !f.morse, () => { toast('В море мигает огонёк: корабль что-то передаёт'); tip('morse', 'Корабль мигает азбукой Морзе. В фонарной есть сигнальный фонарь — можно ответить.'); UI.tasks(); });
   if (d === 4) tr('aur', m >= 1290, () => tip('aurora', 'Ночь ясная. Выйдите к морю и посмотрите на небо.'));
-  if (d === 6) tr('inv6m', m >= 720, () => { f.inv6m = 1; say([['Рация', '«Смотритель, приём! Это Матвей. Вечером у пирса костёр разведу, уху прощальную сварю. Приходи к шести, а? Приём.»', 'letter']].concat(f.inv6s ? [[HERO, 'В шесть... Соня ведь тоже звала к шести. Придётся выбирать.']] : []), () => UI.tasks()); });
+  if (d === 6) tr('inv6m', m >= 720, () => { f.inv6m = 1; say([['Рация', '«Смотритель, приём! Это Матвей. Вечером у пирса костёр разведу, уху прощальную сварю. Приходи, как стемнеет, часам к восьми. Соня говорит, ты ей на закате позировать обещал — так ты успеешь и туда, и сюда. Приём.»', 'letter']], () => UI.tasks()); });
 }
 function soulTick(dt) {
   if (G.mode !== 'play') return;
@@ -82,8 +81,10 @@ function soulInit() {
   UI.tasks = function () {
     _tasks(); const f = S.flags, ul = $('#taskList');
     const add = txt => { const li = document.createElement('li'); li.className = 'q'; li.innerHTML = '<span class="b"></span>'; const s = document.createElement('span'); s.textContent = txt; li.appendChild(s); ul.appendChild(li); };
-    if (S.day === 3 && (f.storm === 'lida' || f.storm === 'nets') && !f.stormRes) add(f.storm === 'lida' ? 'Светить Лиде фонарём с конца пирса (до 19:30)' : 'Спасти сети Матвея на западных камнях (до 19:30)');
-    if (S.day === 6 && (f.inv6s || f.inv6m) && !f.eve6 && S.min < 1170) add('В 18:00: портрет у Сони или уха у Матвея');
+    if (S.day === 3 && f.storm && !f.stormL) add('Посветить Лиде фонарём с конца пирса');
+    if (S.day === 3 && f.storm && !f.stormN) add('Забрать сети Матвея с западных камней');
+    if (S.day === 6 && f.inv6s && !f.eve6s && S.min < 1170) add('На закате (18:00) — портрет у Сони на смотровой');
+    if (S.day === 6 && f.inv6m && !f.eve6m && S.min < 1350) add('Вечером (с 20:00) — уха у Матвея на пирсе');
     if (S.day === 2 && S.min >= 1260 && !f.morse) add('Ответить кораблю из фонарной');
   };
   const _panel = UI.panel.bind(UI);
@@ -98,8 +99,8 @@ function soulInit() {
     if (tab === 'inv') { const body = $('#pBody'), tmp = document.createElement('div'); souvSection(tmp); body.prepend(...tmp.childNodes); }
   };
   // objects: storm spots, the signal lamp, the bonfire
-  addObj('island', { x: 31 * T, y: 45.6 * T, kind: 'signal', r: 22, on: () => S.day === 3 && S.flags.storm === 'lida' && !S.flags.stormRes, draw() { }, use: { label: () => 'Светить фонарём в море', run: lidaSignal } });
-  addObj('island', { x: 9.9 * T, y: 33 * T, kind: 'nets', r: 22, on: () => S.day === 3 && S.min < 1170 && S.flags.stormRes !== 'nets' && S.flags.stormRes !== 'late', draw: drawNetsPile, use: { label: () => S.flags.storm === 'nets' ? 'Спасти сети Матвея' : null, run: netsSave } });
+  addObj('island', { x: 31 * T, y: 45.6 * T, kind: 'signal', r: 22, on: () => S.day === 3 && S.flags.storm && !S.flags.stormL, draw() { }, use: { label: () => 'Светить фонарём в море', run: lidaSignal } });
+  addObj('island', { x: 9.9 * T, y: 33 * T, kind: 'nets', r: 22, on: () => S.day === 3 && S.min >= 1080 && !S.flags.stormN, draw: drawNetsPile, use: { label: () => S.flags.storm ? 'Забрать сети Матвея повыше' : null, run: netsSave } });
   addObj('island', { x: 29.1 * T, y: 39.4 * T, kind: 'fire', on: () => S.day === 6 && S.min >= 1066 && S.min < 1350, draw(c, sx, sy) { drawCampfire(c, sx, sy); } });
   addObj('lamp', { x: 10.2 * T, y: 8.4 * T, kind: 'signal', solid: [-5, -4, 10, 4], r: 16, draw(c, sx, sy) { R(c, sx - 1, sy - 10, 2, 10, '#2c2f38'); R(c, sx - 5, sy - 16, 10, 7, '#3d4250'); R(c, sx - 5, sy - 16, 10, 1, '#555b6a'); R(c, sx + 5, sy - 15, 2, 5, MORSE_ON && MS.lit ? '#fff3b0' : '#c9a24a'); for (let i = 0; i < 3; i++) R(c, sx - 4, sy - 14 + i * 2, 8, 1, '#22262f'); R(c, sx - 4, sy, 8, 1, '#2c2f38'); },
     use: { label: () => S.day === 2 && S.min >= 1260 && !S.flags.morse ? 'Ответить кораблю фонарём' : 'Сигнальный фонарь', run: () => { if (S.day === 2 && S.min >= 1260 && !S.flags.morse) openMorse(); else say([[HERO, S.flags.morse ? 'Сигнальный фонарь. Корабль тогда ответил гудком.' : 'Сигнальный фонарь со шторками. Им говорят с кораблями азбукой Морзе.']]); } } });

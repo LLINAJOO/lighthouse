@@ -112,8 +112,8 @@ function guideList() {
   if (S.q.chick === 1) out.push({ id: 'q:chick', label: P.carry === 'chick' ? 'Птенца — к чайкам' : 'Птенец в лесу', where: () => P.carry === 'chick' ? at('island', WORLD.colony[0], WORLD.colony[1]) : at('island', 11.5 * T, 21.4 * T) });
   if (has('map') && !S.flags.dug) out.push({ id: 'q:dig', label: 'Крестик на карте', where: () => at('island', 21.5 * T, 13.4 * T) });
   if (S.day === 6 && S.flags.legend && S.min >= 1230 && !S.flags.whalesSeen) out.push({ id: 'q:whale', label: 'Смотровая ночью', where: () => at('island', 46.5 * T, 13.2 * T) });
-  if (S.day === 3 && S.flags.storm === 'lida' && !S.flags.stormRes) out.push({ id: 'q:lida', label: 'Светить Лиде с пирса', where: () => at('island', 31 * T, 45.6 * T) });
-  if (S.day === 3 && S.flags.storm === 'nets' && !S.flags.stormRes) out.push({ id: 'q:nets', label: 'Сети Матвея', where: () => at('island', 9.6 * T, 33.6 * T) });
+  if (S.day === 3 && S.flags.storm && !S.flags.stormL) out.push({ id: 'q:lida', label: 'Светить Лиде с пирса', where: () => at('island', 31 * T, 45.6 * T) });
+  if (S.day === 3 && S.flags.storm && !S.flags.stormN) out.push({ id: 'q:nets', label: 'Сети Матвея', where: () => at('island', 9.6 * T, 33.6 * T) });
   if (S.day === 2 && S.min >= 1260 && !S.flags.morse) out.push({ id: 'q:morse', label: 'Ответить кораблю', where: () => at('lamp', 10.2 * T, 9 * T) });
   return out;
 }
