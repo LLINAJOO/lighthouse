@@ -43,3 +43,35 @@ function drawCairn(c, x, y, sh) {
   const parts = [[0, 0, 'flat', 11], [0, -4, 's', 12], [1, -8, 's', 17]];
   parts.forEach(([dx, dy, sz, sd]) => { const s = rockSprite(sd, sz); c.drawImage(s, Math.round(x + dx - s.width / 2), Math.round(y + dy - s.height + 2), s.width * (sz === 's' && dy < -6 ? .7 : 1) | 0, s.height * (sz === 's' && dy < -6 ? .7 : 1) | 0); });
 }
+// ===== Driftwood: a bleached log lying on the sand, cut end with rings, broken end, a branch stub =====
+const LOG_C = new Map();
+function driftLogSprite(seed = 1) {
+  let cv = LOG_C.get(seed); if (cv) return cv;
+  const r = rng(seed * 31 + 7), W = 28, H = 11, [a, g] = mk(W, H);
+  const hi = '#e6dccb', li = '#cfc3ab', mid = '#b3a588', dk = '#8f8066', deep = '#6e624e', grain = '#9e8f72';
+  // body: a cylinder lying on its side (rows shaded top -> bottom)
+  const rows = [hi, li, li, mid, mid, dk, deep];
+  for (let x = 4; x < W - 3; x++) {
+    const sag = x >= W - 4 ? 1 : 0; // the broken end is a little thinner
+    for (let i = sag; i < rows.length - sag; i++) R(g, x, 2 + i, 1, 1, rows[i]);
+  }
+  // wood grain: long thin lines along the log
+  for (let k = 0; k < 4; k++) { let x = 6 + (r() * 6 | 0); const y = 3 + (r() * 4 | 0), l = 5 + (r() * 8 | 0); for (let i = 0; i < l && x < W - 6; i++, x++) if (r() > .15) R(g, x, y, 1, 1, grain); }
+  // a knot
+  { const kx = 10 + (r() * 8 | 0); R(g, kx, 5, 2, 1, deep); R(g, kx, 4, 1, 1, dk); }
+  // cut end on the left: an oval with growth rings
+  const cx = 4, cy = 5;
+  for (let y = 1; y < 10; y++) for (let x = 0; x < 8; x++) { const dx = (x + .5 - cx) / 3.2, dy = (y + .5 - cy - .5) / 4.2, d = dx * dx + dy * dy; if (d <= 1 && x <= cx + 1) R(g, x, y, 1, 1, d > .62 ? '#a8996f' : d > .3 ? '#d9c8a0' : d > .1 ? '#c7b48a' : '#b29c70'); }
+  R(g, cx - 1, 5, 1, 1, '#8a7652');
+  // broken end on the right: jagged splinters
+  // broken end: uneven splinters of different lengths
+  [[W - 3, 3, li], [W - 2, 3, li], [W - 3, 5, mid], [W - 3, 7, dk], [W - 2, 7, dk], [W - 1, 7, dk]].forEach(([x, y, col]) => R(g, x, y, 1, 1, col)); R(g, W - 4, 5, 1, 1, deep);
+  // branch stub on top
+  const bx = 14 + (r() * 5 | 0); R(g, bx, 0, 2, 2, mid); R(g, bx, 0, 1, 1, li);
+  const [b, bg] = mk(W + 2, H + 2); bg.drawImage(a, 1, 1); outlinePass(b, '#3a3328');
+  LOG_C.set(seed, b); return b;
+}
+function drawDriftLog(c, x, y, seed, sh) {
+  const s = driftLogSprite(seed); if (sh) shadowE(c, x, y, 13, 2.5, sh);
+  c.drawImage(s, Math.round(x - s.width / 2), Math.round(y - s.height + 2));
+}
