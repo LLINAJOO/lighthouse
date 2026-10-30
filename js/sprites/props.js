@@ -78,3 +78,61 @@ function drawTelescope(c, sx, sy) {
   });
   c.drawImage(spr, Math.round(sx - 11), Math.round(sy - 20));
 }
+
+// ===== Outline for hand-drawn objects (furniture, boats, ladders, signs, herbs...) =====
+// The object is drawn into a scratch canvas, then every see-through pixel touching a solid one gets the outline colour.
+// Soft things (shadows, glows, wakes) are not solid, so they don't get outlined.
+const OL = { a: null, b: null };
+// results are kept for a few frames per object, so the per-pixel pass runs ~10 times a second, not every frame
+const OL_CACHE = new Map();
+function outlineDraw(c, sx, sy, W, H, ax, ay, paint, key) {
+  if (key !== undefined) {
+    const e = OL_CACHE.get(key), now = G.time;
+    if (e && e.W === W && e.H === H && now - e.t < .1 && now >= e.t) { c.drawImage(e.cv, sx - ax, sy - ay); return; }
+    const [cv, cg] = e && e.W === W && e.H === H ? [e.cv, e.cv.getContext('2d')] : mk(W, H);
+    cg.clearRect(0, 0, W, H); outlineDraw(cg, ax, ay, W, H, ax, ay, paint);
+    OL_CACHE.set(key, { cv, W, H, t: now - Math.random() * .03 }); c.drawImage(cv, sx - ax, sy - ay); return;
+  }
+  if (!OL.a || OL.a.width < W || OL.a.height < H) { OL.a = document.createElement('canvas'); OL.a.width = Math.max(W, 160); OL.a.height = Math.max(H, 140); OL.ag = OL.a.getContext('2d', { willReadFrequently: true }); }
+  const g = OL.ag; g.clearRect(0, 0, W, H); g.save(); paint(g, ax, ay); g.restore();
+  const im = g.getImageData(0, 0, W, H), d = im.data, solid = i => d[i + 3] >= 200;
+  const on = [];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4; if (solid(i)) continue;
+    if ((x > 0 && solid(i - 4)) || (x < W - 1 && solid(i + 4)) || (y > 0 && solid(i - W * 4)) || (y < H - 1 && solid(i + W * 4))) on.push(i);
+  }
+  if (!on.length) { c.drawImage(OL.a, 0, 0, W, H, sx - ax, sy - ay, W, H); return; }
+  const n = parseInt(OUTL.slice(1), 16); for (const i of on) { d[i] = n >> 16 & 255; d[i + 1] = n >> 8 & 255; d[i + 2] = n & 255; d[i + 3] = 255; }
+  g.putImageData(im, 0, 0); c.drawImage(OL.a, 0, 0, W, H, sx - ax, sy - ay, W, H);
+}
+const OUTLINE_KINDS = {
+  // furniture and things indoors
+  stove: 1, woodbox: 1, table: 1, shelf: 1, chest: 1, store: 1, stairs: 2, bed: 2, desk: 1, souvshelf: 1, chime: 1,
+  gen: 1, tools: 1, bench_w: 2, rope: 1, bike: 1, barrel: 1, nets: 1, mech: 1, radio: 1,
+  // outdoors
+  boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, easel: 1, wreck: 2, tent: 2, tripod: 1, crates: 1, vane: 1,
+};
+let OLID = 0; const _addObjPlain = addObj;
+addObj = function (map, o) {
+  const big = OUTLINE_KINDS[o.kind];
+  if (big && typeof o.draw === 'function') {
+    const d = o.draw, W = big === 2 ? 150 : 84, H = big === 2 ? 120 : 84, ax = W >> 1, ay = big === 2 ? 90 : 64;
+    const id = 'o' + (++OLID); o.draw = function (c, sx, sy) { outlineDraw(c, Math.round(sx), Math.round(sy), W, H, ax, ay, (g, x, y) => d.call(this, g, x, y), id); };
+  }
+  return _addObjPlain(map, o);
+};
+// tea herbs and the boats that come and go
+const _drawHerbPlain = drawHerb;
+drawHerb = function (c, x, y, k, t, wind, seed) { outlineDraw(c, Math.round(x), Math.round(y), 24, 20, 12, 17, (g, ox, oy) => _drawHerbPlain(g, ox, oy, k, t, wind, seed), 'h' + k + seed); };
+const _drawBoatPlain = drawBoatKind;
+drawBoatKind = function (c, x, y, k, time, mv, seed) { outlineDraw(c, Math.round(x), Math.round(y), 150, 110, 75, 70, (g, ox, oy) => _drawBoatPlain(g, ox, oy, k, time, mv, seed), 'b' + k); };
+// meadow flowers: a few cached outlined sprites (colour x lean)
+function drawFlower(c, x, y, time, wind, seed) {
+  const lean = Math.max(-2, Math.min(2, Math.round(Math.sin(time * 2 + seed * 9) * wind * .6))), col = seed % 4;
+  const spr = outlinedSprite('flower' + col + '|' + lean, 9, 9, g => {
+    const cols = ['#f2e36b', '#f2f2f2', '#e88ab0', '#9bb8f0'], X = 4, Y = 8;
+    R(g, X, Y - 3, 1, 3, '#4f8a43'); R(g, X + 1, Y - 2, 1, 1, '#5f9a4c');
+    R(g, X - 1 + lean, Y - 5, 3, 1, cols[col]); R(g, X + lean, Y - 6, 1, 3, cols[col]); R(g, X + lean, Y - 5, 1, 1, '#d98a2b');
+  });
+  c.drawImage(spr, Math.round(x - 5), Math.round(y - 9));
+}
