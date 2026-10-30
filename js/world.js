@@ -114,9 +114,9 @@ function give(id, n = 1, quiet) {
   S.inv[id] = (S.inv[id] || 0) + n; if (typeof atlasOnGive === 'function') atlasOnGive(id);
   if (ITEMS[id] && ITEMS[id].souv && !S.souv.includes(id)) { S.souv.push(id); AU.chime(); toast('Сувенир: ' + ITEMS[id].n, id); if (S.souv.length >= SOUV_TOTAL) unlock('collector'); }
   else if (!quiet) toast('+' + n + ' ' + (ITEMS[id] ? ITEMS[id].n : id), id);
-  UI.hud();
+  UI.hud(); UI.tasks(); // counters in the task list (e.g. «плавник 2/3») follow the bag
 }
-function take(id, n = 1) { S.inv[id] = Math.max(0, (S.inv[id] || 0) - n); UI.hud(); }
+function take(id, n = 1) { S.inv[id] = Math.max(0, (S.inv[id] || 0) - n); UI.hud(); UI.tasks(); }
 const has = (id, n = 1) => (S.inv[id] || 0) >= n;
 const hh = m => m / 60;
 const lampAvail = () => S.day === 5 ? S.min >= 720 : S.min >= 1020;

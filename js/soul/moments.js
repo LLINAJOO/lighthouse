@@ -4,9 +4,10 @@
 function startQuiet(o) {
   if (G.quiet) return; G.quiet = Object.assign({ t: 0, dur: 22, lines: [], pan: [0, 0] }, o);
   document.body.classList.add('quiet'); $('#qcap').classList.add('off'); G.target = null;
+  const h = $('#qhint'); if (h) { h.textContent = document.body.classList.contains('touch') ? 'Коснитесь экрана, чтобы встать' : 'Нажмите E, клавишу движения или кликните, чтобы встать'; h.classList.remove('off'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.add('off'), 5000); }
 }
 function endQuiet() {
-  const q = G.quiet; if (!q) return; G.quiet = null; document.body.classList.remove('quiet'); $('#qcap').classList.add('off'); $('#qcap').dataset.i = '';
+  const q = G.quiet; if (!q) return; G.quiet = null; document.body.classList.remove('quiet'); $('#qcap').classList.add('off'); $('#qcap').dataset.i = ''; const h = $('#qhint'); if (h) h.classList.add('off');
   if (q.onEnd) q.onEnd();
 }
 function quietTick(dt) {
@@ -93,3 +94,6 @@ function bonfireScene(after) {
       onEnd: () => { memo('eve6m', 'Ели с Матвеем уху у костра на пирсе. Он рассказывал про старые шторма.'); after && after(); } });
   });
 }
+
+// a tap or click anywhere ends a quiet moment (after the first second, so the tap that started it doesn't)
+addEventListener('pointerdown', e => { if (G.quiet && G.quiet.t > 1 && !e.target.closest('#panel,#sndBox,#btns,#doc')) { e.preventDefault(); endQuiet(); } }, true);
