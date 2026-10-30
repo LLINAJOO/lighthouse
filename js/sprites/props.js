@@ -108,8 +108,10 @@ function outlineDraw(c, sx, sy, W, H, ax, ay, paint, key) {
 const OUTLINE_KINDS = {
   // furniture and things indoors
   stove: 1, woodbox: 1, table: 1, shelf: 1, chest: 1, store: 1, stairs: 2, bed: 2, desk: 1, souvshelf: 1, chime: 1,
-  gen: 1, tools: 1, bench_w: 2, rope: 1, bike: 1, barrel: 1, nets: 1, mech: 1, radio: 1,
+  gen: 1, tools: 1, bench_w: 2, rope: 1, bike: 1, barrel: 1, nets: 1, radio: 1, // the gear mechanism has its own outline
   // outdoors
+  // things you can pick up
+  shell: 1, feather: 1, branch: 1, berry: 1, supply: 1, debris: 1,
   boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, easel: 1, wreck: 2, tent: 2, tripod: 1, crates: 1, vane: 1,
 };
 let OLID = 0; const _addObjPlain = addObj;
@@ -126,13 +128,4 @@ const _drawHerbPlain = drawHerb;
 drawHerb = function (c, x, y, k, t, wind, seed) { outlineDraw(c, Math.round(x), Math.round(y), 24, 20, 12, 17, (g, ox, oy) => _drawHerbPlain(g, ox, oy, k, t, wind, seed), 'h' + k + seed); };
 const _drawBoatPlain = drawBoatKind;
 drawBoatKind = function (c, x, y, k, time, mv, seed) { outlineDraw(c, Math.round(x), Math.round(y), 150, 110, 75, 70, (g, ox, oy) => _drawBoatPlain(g, ox, oy, k, time, mv, seed), 'b' + k); };
-// meadow flowers: a few cached outlined sprites (colour x lean)
-function drawFlower(c, x, y, time, wind, seed) {
-  const lean = Math.max(-2, Math.min(2, Math.round(Math.sin(time * 2 + seed * 9) * wind * .6))), col = seed % 4;
-  const spr = outlinedSprite('flower' + col + '|' + lean, 9, 9, g => {
-    const cols = ['#f2e36b', '#f2f2f2', '#e88ab0', '#9bb8f0'], X = 4, Y = 8;
-    R(g, X, Y - 3, 1, 3, '#4f8a43'); R(g, X + 1, Y - 2, 1, 1, '#5f9a4c');
-    R(g, X - 1 + lean, Y - 5, 3, 1, cols[col]); R(g, X + lean, Y - 6, 1, 3, cols[col]); R(g, X + lean, Y - 5, 1, 1, '#d98a2b');
-  });
-  c.drawImage(spr, Math.round(x - 5), Math.round(y - 9));
-}
+// meadow flowers stay without an outline: only things you can pick up stand out
