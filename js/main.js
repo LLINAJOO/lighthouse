@@ -19,7 +19,7 @@ addEventListener('resize', resize);
 // ---------- input ----------
 const K = {}; const pad = { x: 0, y: 0, on: false };
 addEventListener('keydown', e => {
-  if (e.target && e.target.tagName === 'INPUT') return;
+  if (e.target && e.target.tagName === 'INPUT') { if (e.key === 'Escape' && e.target.closest('#sndBox')) { $('#sndBox').hidden = true; $('#bSnd').focus(); } return; }
   const k = e.key.toLowerCase(); K[k] = true;
   if (G.mode === 'sail') { if (G.sail && ['e', ' ', 'enter', 'у'].includes(k)) { e.preventDefault(); G.sail.t = Math.max(G.sail.t, G.sail.dur - .5); } return; }
   if (G.mode !== 'play') return;
@@ -50,7 +50,7 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
   $('#ta').addEventListener('pointerdown', e => { e.preventDefault(); action(); });
   $('#tb').addEventListener('click', () => { P.runToggle = !P.runToggle; $('#tb').classList.toggle('on', P.runToggle); });
 })();
-addEventListener('pointerdown', e => { if (G.mode === 'play' && !$('#dialog').hidden && !MENU.open && !e.target.closest('button,#panel,#dialog')) DLG.next(); });
+addEventListener('pointerdown', e => { if (G.mode === 'play' && !$('#dialog').hidden && !MENU.open && !e.target.closest('button,#panel,#dialog,#sndBox')) DLG.next(); });
 $('#dialog').addEventListener('pointerdown', e => { e.stopPropagation(); DLG.next(); });
 
 function action() {
@@ -174,7 +174,14 @@ document.querySelectorAll('#panel .tabs [data-tab]').forEach(b => b.onclick = ()
 $('#pClose').onclick = () => UI.close();
 $('#panel').addEventListener('pointerdown', e => { if (e.target.id === 'panel') UI.close(); });
 $('#bInv').onclick = () => togglePanel('inv'); $('#bJr').onclick = () => togglePanel('jr');
-$('#bSnd').onclick = () => { const on = AU.toggle(); $('#bSnd').textContent = on ? 'Звук' : 'Тихо'; };
+// sound settings: a little panel under the button — volume and the rain noise
+const sndLabel = () => { $('#bSnd').textContent = !AU.on || AU.vol === 0 ? 'Тихо' : 'Звук'; };
+$('#bSnd').onclick = e => { e.stopPropagation(); const box = $('#sndBox'); box.hidden = !box.hidden; if (!box.hidden) { $('#sndVol').value = AU.on ? Math.round(AU.vol * 100) : 0; $('#sndVolN').textContent = $('#sndVol').value + '%'; $('#sndRain').checked = AU.rainOn; $('#sndVol').focus(); } };
+$('#sndVol').oninput = () => { const v = +$('#sndVol').value; $('#sndVolN').textContent = v + '%'; AU.setVol(v / 100); sndLabel(); };
+$('#sndRain').onchange = () => AU.setRain($('#sndRain').checked);
+$('#sndX').onclick = () => { $('#sndBox').hidden = true; };
+addEventListener('pointerdown', e => { if (!$('#sndBox').hidden && !e.target.closest('#sndBox,#bSnd')) $('#sndBox').hidden = true; });
+sndLabel();
 $('#tasksH').onclick = () => $('#tasks').classList.toggle('min');
 function useItem(id) {
   UI.close();

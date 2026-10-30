@@ -148,7 +148,7 @@ function buildWorld() {
     } else if (forest && h > .965 && !busy.has(key(x, y))) {
       busy.add(key(x, y)); WORLD.branchSpots.push([x * T + 8, y * T + 10]);
     } else if (!forest && h > .985) {
-      busy.add(key(x, y)); addObj('island', { x: x * T + 8, y: y * T + 12, kind: 'rock', solid: [-5, -3, 10, 3], draw(c, sx, sy) { drawRock(c, sx, sy, G.sh, false, x * 31 + y * 7); } });
+      busy.add(key(x, y)); addObj('island', { x: x * T + 8, y: y * T + 12, kind: 'rock', solid: [-5, -3, 10, 3], draw(c, sx, sy) { drawRock(c, sx, sy, G.sh, hash(x, y + 3) > .6, x * 31 + y * 7, true); } });
     }
   }
   // extra branch spots on forest edges if few
@@ -182,7 +182,7 @@ function buildWorld() {
   addObj('island', { x: 47.5 * T, y: 26 * T + 4, kind: 'shed', solid: [-22, -24, 44, 22], ix: 47.5 * T, iy: 26 * T + 8, r: 16, draw(c, sx, sy) { drawShed(c, sx, sy, G.sh, !S.power || (S.day >= 3 && !has('wrench'))); }, use: { label: () => 'Войти в сарай', run: () => goTo('shed', 6 * T, 8.4 * T, 3) } });
   addObj('island', { x: 40 * T, y: 37 * T, kind: 'boat', solid: [-18, -8, 36, 7], r: 22, iy: 37 * T - 2, draw(c, sx, sy) { drawBoat(c, sx, sy, G.sh, true); }, use: { label: () => 'Осмотреть старую лодку', run: () => say([[HERO, S.day < 4 ? 'Старая лодка Савелия. Дно пробито, вёсла давно унесло. А название ещё читается: «Надежда».' : 'Старая «Надежда». После шторма к ней прибило всякий хлам.']]) } });
   addObj('island', { x: 37.5 * T, y: 38.6 * T, kind: 'drift', on: () => S.day >= 4 && !S.flags.crateOpened, draw(c, sx, sy) { drawCrate(c, sx, sy, G.sh, true); }, use: { label: () => 'Открыть ящик', run: () => startAct('pick', .9, () => { S.flags.crateOpened = 1; say([[HERO, 'Ящик выбросило штормом. Внутри — солома, старая карта и бутылка, запечатанная воском.']], () => { give('bottle'); give('map'); UI.tasks(); openDoc('bottle'); }); }) } });
-  addObj('island', { x: 48.4 * T, y: 11.8 * T, kind: 'telescope', solid: [-3, -3, 6, 3], draw(c, sx, sy) { R(c, sx - 3, sy - 2, 6, 2, '#2c2f38'); R(c, sx - 1, sy - 10, 2, 9, '#3a3e48'); R(c, sx - 5, sy - 14, 10, 4, '#c9a24a'); R(c, sx + 4, sy - 13, 2, 2, '#9ec7da'); }, use: { label: () => 'Смотреть в подзорную трубу', run: telescope } });
+  addObj('island', { x: 48.4 * T, y: 11.8 * T, kind: 'telescope', solid: [-3, -3, 6, 3], draw(c, sx, sy) { drawTelescope(c, sx, sy); }, use: { label: () => 'Смотреть в подзорную трубу', run: telescope } });
   addObj('island', { x: 45.2 * T, y: 13.4 * T, kind: 'easel', on: () => S.day >= 4, draw(c, sx, sy) { drawEasel(c, sx, sy); } });
   // utes (NW cliff)
   addObj('island', { x: 19.6 * T, y: 12.2 * T, kind: 'tree', solid: [-3, -3, 6, 3], draw(c, sx, sy) { drawPine(c, sx, sy, 1.25, G.time, G.wind * 1.3, G.sh, 3); } });

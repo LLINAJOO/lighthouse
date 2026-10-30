@@ -1,12 +1,12 @@
 "use strict";
 // ===================== AUDIO: ambience + generative music =====================
 const AU = {
-  ac: null, on: true, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
+  ac: null, on: true, vol: .8, rainOn: true, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
   init() {
     if (this.ac) { if (this.ac.state === 'suspended') this.ac.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     const ac = this.ac = new AC();
-    this.master = ac.createGain(); this.master.gain.value = this.on ? .8 : 0; this.master.connect(ac.destination);
+    this.master = ac.createGain(); this.master.gain.value = this.on ? this.vol : 0; this.master.connect(ac.destination);
     const comp = ac.createDynamicsCompressor(); comp.connect(this.master);
     this.music = ac.createGain(); this.music.gain.value = .42; this.music.connect(comp);
     // simple reverb
@@ -23,7 +23,10 @@ const AU = {
     this.nodes.wind = loop('bandpass', 380, .8, 0);
     this.next = ac.currentTime + .2;
   },
-  toggle() { this.on = !this.on; if (this.master) this.master.gain.setTargetAtTime(this.on ? .8 : 0, this.ac.currentTime, .1); return this.on; },
+  toggle() { this.on = !this.on; this.apply(); return this.on; },
+  apply() { if (this.master) this.master.gain.setTargetAtTime(this.on ? this.vol : 0, this.ac.currentTime, .1); try { localStorage.setItem('lighthouse-sound-v1', JSON.stringify({ on: this.on, vol: this.vol, rain: this.rainOn })); } catch (e) { } },
+  setVol(v) { this.vol = Math.max(0, Math.min(1, v)); this.on = this.vol > 0; this.apply(); },
+  setRain(on) { this.rainOn = !!on; this.apply(); },
   tone(freq, t, dur, type, vol, dest, attack = .005) {
     const ac = this.ac, o = ac.createOscillator(), g = ac.createGain();
     o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(.0008, t + dur);
@@ -70,7 +73,7 @@ const AU = {
     const now = ac.currentTime, st = (n, v) => n.g.gain.setTargetAtTime(v, now, .8);
     const out = env.outdoor ? 1 : env.high ? .7 : .25;
     st(this.nodes.waves, (.18 + .12 * Math.sin(now * .45) + .06 * Math.sin(now * 1.3)) * out * (env.storm ? 1.6 : 1));
-    st(this.nodes.rain, env.rain ? (env.outdoor || env.high ? .28 : .1) * (env.storm ? 1.5 : 1) : 0);
+    st(this.nodes.rain, env.rain && this.rainOn ? (env.outdoor || env.high ? .28 : .1) * (env.storm ? 1.5 : 1) : 0);
     st(this.nodes.wind, (env.wind ? .22 : .03) * (env.outdoor || env.high ? 1 : .3) * (env.storm ? 1.8 : 1));
     this.nodes.wind.f.frequency.setTargetAtTime(300 + 200 * Math.sin(now * .3), now, .5);
     // gulls
@@ -95,3 +98,5 @@ const AU = {
   voice(freq, type, vol) { if (!this.ac) return; const t = this.ac.currentTime, f = freq * (1 + (Math.random() - .5) * .08); const o = this.ac.createOscillator(), g = this.ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + .035); g.gain.linearRampToValueAtTime(0, t + .055); o.connect(g); g.connect(this.amb); o.start(t); o.stop(t + .07); },
   blip() { if (!this.ac) return; this.tone(880, this.ac.currentTime, .08, 'square', .02, this.amb); },
 };
+
+try { const sv = JSON.parse(localStorage.getItem('lighthouse-sound-v1') || 'null'); if (sv) { AU.on = sv.on !== false; AU.vol = typeof sv.vol === 'number' ? sv.vol : .8; AU.rainOn = sv.rain !== false; } } catch (e) { }
