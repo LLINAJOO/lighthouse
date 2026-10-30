@@ -2,12 +2,21 @@
 // ===== Quiet moments and choices =====
 // ---------- quiet moments ----------
 function startQuiet(o) {
-  if (G.quiet) return; G.quiet = Object.assign({ t: 0, dur: 22, lines: [], pan: [0, 0] }, o);
+  if (G.quiet) return; G.quiet = Object.assign({ t: 0, dur: 22, lines: [], pan: [0, 0], skip: true }, o);
   document.body.classList.add('quiet'); $('#qcap').classList.add('off'); G.target = null;
-  const h = $('#qhint'); if (h) { h.textContent = document.body.classList.contains('touch') ? 'Коснитесь экрана, чтобы встать' : 'Нажмите E, клавишу движения или кликните, чтобы встать'; h.classList.remove('off'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.add('off'), 5000); }
+  const h = $('#qhint'); if (h && G.quiet.skip) { h.textContent = document.body.classList.contains('touch') ? 'Коснитесь экрана, чтобы встать' : 'Нажмите E, клавишу движения или кликните, чтобы встать'; h.classList.remove('off'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.add('off'), 5000); }
 }
-function endQuiet() {
-  const q = G.quiet; if (!q) return; G.quiet = null; document.body.classList.remove('quiet'); $('#qcap').classList.add('off'); $('#qcap').dataset.i = ''; const h = $('#qhint'); if (h) h.classList.add('off');
+// cut: the player got up before the moment was over — everything comes back at once, the moment can happen again
+function endQuiet(cut) {
+  const q = G.quiet; if (!q) return; G.quiet = null; $('#qcap').classList.add('off'); $('#qcap').dataset.i = ''; const h = $('#qhint'); if (h) h.classList.add('off');
+  if (cut) {
+    document.body.classList.add('qcut'); document.body.classList.remove('quiet'); setTimeout(() => document.body.classList.remove('qcut'), 60);
+    if (P.sit) standUp(); snapCam();
+    if (q.cat && catKept() && q.t > 2) G.catLeave = { x: P.x + 13, y: P.y + 1, t: 0 }; // the cat gets up and wanders off to sleep
+    if (q.onCut) q.onCut();
+    return;
+  }
+  document.body.classList.remove('quiet');
   if (q.onEnd) q.onEnd();
 }
 function quietTick(dt) {
@@ -16,7 +25,7 @@ function quietTick(dt) {
   if (i >= 0 && i < q.lines.length) { if (cap.dataset.i !== String(i)) { cap.dataset.i = String(i); cap.textContent = q.lines[i]; } cap.classList.toggle('off', local > per - .9); }
   else cap.classList.add('off');
   const moved = K.w || K.a || K.s || K.d || K.arrowup || K.arrowdown || K.arrowleft || K.arrowright || (pad.on && Math.hypot(pad.x, pad.y) > .5);
-  if ((q.t > 1.5 && moved) || q.t >= Math.max(q.dur, 1.6 + q.lines.length * per)) endQuiet();
+  if (q.skip && q.t > 1 && moved) endQuiet(true); else if (q.t >= Math.max(q.dur, 1.6 + q.lines.length * per)) endQuiet();
 }
 const qk = () => G.quiet ? smooth(clamp(G.quiet.t / 4, 0, 1)) * (G.quiet.t > G.quiet.dur - 1 ? clamp(G.quiet.dur - G.quiet.t, 0, 1) : 1) : 0;
 function quietCat(x, y) {
@@ -44,10 +53,12 @@ function sitHere(dir) { P.sit = { o: { x: P.x, y: P.y - 10 }, t: 0 }; P.dir = di
 function benchQuietCheck() {
   if (!P.sit || G.quiet || !P.sit.o.bench || P.sit.t < 2.5) return;
   if (S.min < 1050 || S.min > 1250 || !clearSky() || S.flags['qs' + S.day]) return;
-  S.flags['qs' + S.day] = 1; unlock('sunset');
   const pan = { view: [0, -40], cliff: [-24, -30], glade: [0, -12] }[P.sit.o.bench] || [0, -20];
-  memo('sunset' + S.day, 'Смотрел на закат со скамейки. ' + (catKept() ? catName() + ' сидел рядом.' : 'Просто сидел и молчал.'));
-  startQuiet({ kind: 'sunset', dur: 24, lines: sunsetLines(), pan, cat: true, mode: 'evening' });
+  // counts as seen only once it has played to the end; if interrupted, sitting down again replays it
+  startQuiet({ kind: 'sunset', dur: 24, lines: sunsetLines(), pan, cat: true, mode: 'evening', onEnd: () => {
+    S.flags['qs' + S.day] = 1; unlock('sunset');
+    memo('sunset' + S.day, 'Смотрел на закат со скамейки. ' + (catKept() ? catName() + ' сидел рядом.' : 'Просто сидел и молчал.'));
+  } });
 }
 
 // ---------- day 3: storm choice ----------
@@ -82,7 +93,7 @@ function portraitScene() {
   say([['Соня', 'Пришёл! Садись на скамейку, смотри на море и не шевелись. Совсем-совсем.']], () => {
     const b = MAPS.island.objs.find(o => o.kind === 'bench' && o.bench === 'view'); if (b) sitDown(b);
     S.flags['qs6'] = 1;
-    startQuiet({ kind: 'portrait', dur: 24, pan: [0, -30], cat: true, mode: 'evening', lines: ['Соня рисует, высунув кончик языка.', 'Солнце садится, тени становятся длинными.', 'Сидеть неподвижно трудно. Но приятно: кто-то смотрит на тебя и видит что-то хорошее.'],
+    startQuiet({ kind: 'portrait', skip: false, dur: 24, pan: [0, -30], cat: true, mode: 'evening', lines: ['Соня рисует, высунув кончик языка.', 'Солнце садится, тени становятся длинными.', 'Сидеть неподвижно трудно. Но приятно: кто-то смотрит на тебя и видит что-то хорошее.'],
       onEnd: () => { memo('eve6s', 'Позировал Соне на закате. Она нарисовала, как я смотрю на море.'); say([['Соня', 'Готово! Ну, почти. Дорисую дома.'], ['Соня', 'Ты тут смотришь на море. Как будто уже скучаешь.']], () => UI.tasks()); } });
   });
 }
@@ -90,10 +101,15 @@ function bonfireScene(after) {
   const f = S.flags; f.eve6m = 1;
   say([['Матвей', 'Пришёл всё-таки! Садись к огню. Уха как раз поспела.']], () => {
     sitHere(1);
-    startQuiet({ kind: 'fire', dur: 24, pan: [-6, -6], cat: true, mode: 'evening', lines: ['Уха пахнет дымом и лавровым листом.', 'Матвей рассказывает про шторм пятьдесят второго года. Половину, наверное, выдумал.', 'Огонь трещит. Над водой загораются первые звёзды.'],
+    startQuiet({ kind: 'fire', skip: false, dur: 24, pan: [-6, -6], cat: true, mode: 'evening', lines: ['Уха пахнет дымом и лавровым листом.', 'Матвей рассказывает про шторм пятьдесят второго года. Половину, наверное, выдумал.', 'Огонь трещит. Над водой загораются первые звёзды.'],
       onEnd: () => { memo('eve6m', 'Ели с Матвеем уху у костра на пирсе. Он рассказывал про старые шторма.'); after && after(); } });
   });
 }
 
 // a tap or click anywhere ends a quiet moment (after the first second, so the tap that started it doesn't)
-addEventListener('pointerdown', e => { if (G.quiet && G.quiet.t > 1 && !e.target.closest('#panel,#sndBox,#btns,#doc')) { e.preventDefault(); endQuiet(); } }, true);
+addEventListener('pointerdown', e => { if (G.quiet && G.quiet.skip && G.quiet.t > 1 && !e.target.closest('#panel,#sndBox,#btns,#doc')) { e.preventDefault(); endQuiet(true); } }, true);
+// the cat walking off after an interrupted moment
+function drawCatLeaving(dt) {
+  const c = G.catLeave; if (!c || !catKept()) return; c.t += dt; if (c.t > 2.6) { G.catLeave = null; return; }
+  const x = Math.round(c.x + c.t * 26 - G.cam.x), y = Math.round(c.y - G.cam.y); ctx.globalAlpha = clamp((2.6 - c.t) / .8, 0, 1); G.qCatDraw = 1; drawCat(ctx, x, y, 'walk', 2, G.time); G.qCatDraw = 0; ctx.globalAlpha = 1;
+}

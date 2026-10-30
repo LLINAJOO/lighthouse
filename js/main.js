@@ -202,7 +202,7 @@ function blocked(x, y) {
 const DIRV = [[0, 1], [-1, 0], [1, 0], [0, -1]];
 function updatePlayer(dt) {
   let ix = 0, iy = 0;
-  const free = $('#dialog').hidden && $('#panel').hidden && !MENU.open && !NAMEBOX.open && !SCOPE_ON && !DOC_ON && !COUNT_ON && !MORSE_ON && !G.busy && !P.act && !P.fish && G.mode === 'play';
+  const free = $('#dialog').hidden && $('#panel').hidden && !MENU.open && !NAMEBOX.open && !SCOPE_ON && !DOC_ON && !COUNT_ON && !MORSE_ON && !G.busy && !P.act && !P.fish && G.mode === 'play' && !(G.quiet && !G.quiet.skip); // key scenes hold the keeper in place
   if (free) {
     if (K.a || K.arrowleft || K['ф']) ix -= 1; if (K.d || K.arrowright || K['в']) ix += 1; if (K.w || K.arrowup || K['ц']) iy -= 1; if (K.s || K.arrowdown || K['ы']) iy += 1;
     if (pad.on) { ix = pad.x; iy = pad.y; }
@@ -590,7 +590,7 @@ function drawEnding() {
   const t = G.endT, w = VW, h = VH;
   if (t < 34) {
     const k = clamp(t / 30, 0, 1);
-    drawSide(ctx, w, h, G.time, { dusk: clamp(k * 1.3, 0, 1), islandX: lerp(w * .36, -w * .02, smooth(k)), s: lerp(1.05, .5, smooth(k)), boatX: lerp(w * .5, w * .62, smooth(k)), cat: S.flags.cat === 'kept', pup: !!S.flags.pupFriend, nadezhda: (S.flags.boat | 0) >= 4, fog: clamp((k - .35) * .9, 0, .45), mainland: clamp((k - .55) * 2.5, 0, 1), waving: k < .5 ? presentAtFarewell().length : 0, beamA: 1 });
+    drawRideHome(ctx, w, h, G.time, k);
     const bar = Math.round(h * .11 * clamp(t / 2, 0, 1)); R(ctx, 0, 0, w, bar, '#000'); R(ctx, 0, h - bar, w, bar, '#000');
     if (t > 31) { ctx.fillStyle = `rgba(5,8,15,${clamp((t - 31) / 3, 0, 1)})`; ctx.fillRect(0, 0, w, h); }
     return;

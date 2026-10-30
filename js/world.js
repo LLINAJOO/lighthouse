@@ -21,7 +21,7 @@ const TASK = {
   ladder: { t: 'Починить лестницу у пирса' },
   ship: { t: 'Встретить корабль у пирса' },
   unload: { t: 'Перенести припасы в кладовую', n: 3 },
-  bye: { t: 'Попрощаться с жителями', n: 3 },
+  bye: { t: 'Попрощаться с жителями', get n() { return S.flags.ny ? 4 : 3; } },
   pierEnd: { t: 'Спуститься к катеру на пирс' },
 };
 const DAYS = [null,
@@ -265,11 +265,25 @@ function spawnDaily() {
 // ---------- NPCs ----------
 const NPCS = {
   matvey: { name: 'Матвей', look: 'matvey' }, lida: { name: 'Лида', look: 'lida' }, sonya: { name: 'Соня', look: 'sonya' },
-  gromov: { name: 'Громов', look: 'gromov' }, belov: { name: 'Капитан Белов', look: 'belov' },
+  gromov: { name: 'Громов', look: 'gromov' }, belov: { name: 'Капитан Белов', look: 'belov' }, nyura: { name: 'Нюра', look: 'nyura' },
 };
 
 function talk(id) {
   const n = NPCS[id], d = S.day, f = S.flags; const L = (t) => [n.name, t];
+  // the evening of the last day: everyone has come to see the keeper off, each has a last word
+  if (d === 7 && S.min >= 1080 && f['bye' + id[0].toUpperCase() + id.slice(1)]) {
+    const last = {
+      matvey: f.stormN ? 'Давай руку. Крепкая. Сети мои удержала, значит, и дома всё удержит.' : 'Давай руку. Огонь я сберегу, а ты дома своих береги.',
+      lida: 'Каждую среду я буду проходить мимо маяка. И каждый раз махать. Вы там, дома, тоже помашите, ладно?',
+      sonya: catKept() ? `Я нарисую открытку и пришлю с тётей Лидой. Там будет маяк, ${catName()} и ты.` : 'Я нарисую открытку и пришлю с тётей Лидой. Там будет маяк и ты. Большой-большой.',
+      nyura: 'Запишу в журнал: «Девятнадцать ноль-ноль. Смотритель отбыл. Ветер попутный».',
+    }[id];
+    if (last) return say([L(last)]);
+  }
+  if (id === 'nyura') {
+    if (d === 7 && !f.byeNyura) { f.byeNyura = 1; return say([L('Смотритель! Я приплыла с базара, не могла не проводить.'), L('Без вашего огня мне по ночам будет темновато. Но я теперь знаю: где-то там, на берегу, вы смотрите на небо.'), L(f.ny === 2 ? 'Бинокль берегите. Моевки осенью летят на юг той же дорогой, что и ваш катер.' : 'Если будете на море, поднимите голову. Может, это мои моевки летят.')], () => progress('bye')); }
+    return say([L('Я до катера тут побуду. Птицы подождут.')]);
+  }
   if (preTalk(id)) return;
   if (id === 'nyura') return nyuraTalk();
   if (id === 'matvey') {

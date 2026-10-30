@@ -56,18 +56,18 @@ function soulMorning() {
   lensLabel = function () { return lampQuiet() ? 'Посидеть у огня' : _ll(); };
   lensRun = function () {
     if (!lampQuiet()) return _lr();
-    sitHere(3); memo('lamp' + S.day, 'Сидел у огня в фонарной. Луч ходил по кругу, а я считал обороты.');
-    startQuiet({ kind: 'lamp', dur: 26, lines: lampLines(), pan: [0, -8], cat: true, mode: 'night' });
+    sitHere(3);
+    startQuiet({ kind: 'lamp', dur: 26, lines: lampLines(), pan: [0, -8], cat: true, mode: 'night', onEnd: () => memo('lamp' + S.day, 'Сидел у огня в фонарной. Луч ходил по кругу, а я считал обороты.') });
   };
   const _sf = startFishing; startFishing = function (spot) { _sf(spot); if (P.fish) tip('fish', 'Ждите, пока поплавок дёрнется и над ним появится «!». Тогда сразу жмите ' + (isTouch ? 'A' : 'E') + '.'); };
   const _give = give; give = function (id, n, quiet) { const had = S.souv.length; _give(id, n, quiet); if (S.souv.length > had) tip('souv', 'Сувениры — памятные вещи этой недели. Их девять, они встают на полку в спальне. Счётчик — под часами.'); };
   const _aa = atlasAdd; atlasAdd = function (cat, id) { const r = _aa(cat, id); if (r) tip('atlas', 'Новая запись в атласе! Атлас — клавиша K: рыбы, птицы, травы, звёзды и морские жители.'); return r; };
   const _cf = catchFish; catchFish = function (spot) { _cf(spot); const id = G.caught && G.caught.id.slice(5), it = ATLAS.fish.items.find(x => x.id === id); if (it) memo('fish_' + id, 'Поймал: ' + it.n.toLowerCase() + '.'); };
   const _ct = camTarget; camTarget = function () { const t = _ct(); const k = qk(); if (k && G.quiet.pan) { t.x += G.quiet.pan[0] * k; t.y += G.quiet.pan[1] * k; } return t; };
-  const _dh = drawHero; drawHero = function () { _dh(); if (G.quiet && G.quiet.cat) quietCat(Math.round(P.x - G.cam.x), Math.round(P.y - G.cam.y)); };
+  let lastHT = 0; const _dh = drawHero; drawHero = function () { _dh(); if (G.quiet && G.quiet.cat) quietCat(Math.round(P.x - G.cam.x), Math.round(P.y - G.cam.y)); const dt = Math.min(.1, Math.max(0, G.time - lastHT)); lastHT = G.time; drawCatLeaving(dt); };
   const _dc = drawCat; drawCat = function (c, x, y, st, dir, t) { if (G.quiet && G.quiet.cat && catKept() && !G.qCatDraw && c === ctx && G.mode === 'play') return; return _dc(c, x, y, st, dir, t); };
   const _ce = checkEvents; checkEvents = function () { _ce(); soulEvents(); };
-  const _act = action; action = function () { if (G.quiet) { if (G.quiet.t > 1) endQuiet(); return; } if (MORSE_ON) return; return _act(); };
+  const _act = action; action = function () { if (G.quiet) { if (G.quiet.skip && G.quiet.t > 1) endQuiet(true); return; } if (MORSE_ON) return; return _act(); };
   const _draw = draw; draw = function () { _draw(); soulOverlay(); };
 }
 function soulInit() {

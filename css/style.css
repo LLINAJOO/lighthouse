@@ -344,3 +344,5 @@ body.touch #tipbox{bottom:calc(232px + env(safe-area-inset-bottom,0px))}
 
 #morse .code > span > span{display:inline-block;margin:0 .22em}
 #morse .code > span{margin:0 .35em}
+
+body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
