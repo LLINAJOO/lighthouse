@@ -2,7 +2,7 @@
 
 Уютная пиксельная игра о последней семидневной смене смотрителя маяка.
 
-**Играть:** https://llinajoo.github.io/lighthouse.github.io/
+**Играть:** https://llinajoo.github.io/lighthouse/
 
 ## Как устроен проект
 
