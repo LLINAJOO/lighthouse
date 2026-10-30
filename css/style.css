@@ -346,3 +346,14 @@ body.touch #tipbox{bottom:calc(232px + env(safe-area-inset-bottom,0px))}
 #morse .code > span{margin:0 .35em}
 
 body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
+
+/* about and feedback */
+.paper.info{transform:none;font-family:var(--f-body);font-size:15px;line-height:1.5;display:grid;gap:8px;text-align:left}
+.paper.info p{margin:0}
+.info-t{font-family:var(--f-display);font-size:26px;margin:0;color:#3b2f22}
+.info-sub{color:#8b6b47;margin-top:-6px!important}
+.info-h{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8b4a2b;margin-top:6px}
+.info-small{font-size:13px;color:#5a4a38}
+.paper.info .btn{justify-self:start}
+.info-ta{width:100%;box-sizing:border-box;font-family:var(--f-body);font-size:15px;padding:8px;border:2px solid #b8a27a;background:#fffaf0;color:#3b2f22;resize:vertical}
+#title .row.small .btn{font-size:15px;padding:6px 14px}

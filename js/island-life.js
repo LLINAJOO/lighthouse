@@ -412,7 +412,7 @@ function buildExtras() {
   buildExtras2();
   makeBench(46.5, 12.3, 'view'); makeBench(22.6, 11.8, 'cliff'); makeBench(76, 31.8, 'glade');
   // the old oak and far forest sign
-  addObj('island', { x: 89 * T, y: 37.6 * T, kind: 'tree', solid: [-5, -4, 10, 4], r: 22, iy: 37.3 * T, draw(c, sx, sy) { drawRoundTree(c, sx, sy, 1.9, G.time, G.wind * .6, G.sh, 7); }, use: { label: () => 'Старый дуб', run: () => say([[HERO, 'Огромный дуб. На коре вырезано: «С. + А. 1961». Савелий и... Анна? На фотографии у него жена. Значит, они приходили сюда.']]) } });
+  addObj('island', { x: 89 * T, y: 37.6 * T, kind: 'tree', solid: [-5, -4, 10, 4], r: 22, iy: 37.3 * T, draw(c, sx, sy) { drawRoundTree(c, sx, sy, 1.9, G.time, G.wind * .6, G.sh, 7); }, use: { label: () => 'Старый дуб', run: () => say([[HERO, S.souv.includes('photo') ? 'Огромный дуб. На коре вырезано: «С. + А. 1961». Савелий и... та женщина с фотографии? Значит, они приходили сюда вдвоём.' : 'Огромный дуб. На коре вырезано: «С. + А. 1961». «С.» — наверное, Савелий. А кто такая «А.»?']]) } });
   addObj('island', { x: 57.6 * T, y: 32.4 * T, kind: 'sign', solid: [-1, -2, 3, 2], draw(c, sx, sy) { R(c, sx, sy - 14, 2, 14, '#6b4a2e'); R(c, sx - 2, sy - 14, 13, 4, '#b68a58'); R(c, sx + 9, sy - 13, 2, 2, '#3a2a1a'); }, use: { label: () => 'Прочитать указатель', run: () => say([['Указатель', '→ Дальний лес · лесное озеро · старый дуб · ← Маяк']]) } });
   // cat
   MAPS.island.objs.push(catObj('island')); MAPS.house.objs.push(catObj('house'));

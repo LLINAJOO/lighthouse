@@ -19,7 +19,7 @@ addEventListener('resize', resize);
 // ---------- input ----------
 const K = {}; const pad = { x: 0, y: 0, on: false };
 addEventListener('keydown', e => {
-  if (e.target && e.target.tagName === 'INPUT') { if (e.key === 'Escape' && e.target.closest('#sndBox')) { $('#sndBox').hidden = true; $('#bSnd').focus(); } return; }
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) { if (e.key === 'Escape' && e.target.closest('#sndBox')) { $('#sndBox').hidden = true; $('#bSnd').focus(); } return; }
   const k = e.key.toLowerCase(); K[k] = true;
   if (G.mode === 'sail') { if (G.sail && ['e', ' ', 'enter', 'у'].includes(k)) { e.preventDefault(); G.sail.t = Math.max(G.sail.t, G.sail.dur - .5); } return; }
   if (G.mode !== 'play') return;
