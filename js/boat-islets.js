@@ -344,6 +344,7 @@ $('#countReset').onclick = () => { COUNT.marked.clear(); countText(); };
 $('#countDone').onclick = () => {
   const kitti = COUNT.birds.filter(b => b.kind === 'kitti'), ok = kitti.every(b => COUNT.marked.has(b)) && [...COUNT.marked].every(b => b.kind === 'kitti');
   S.flags.nyCountN = COUNT.marked.size; S.flags.nyCountOK = ok; S.flags.nyCountTrue = kitti.length; S.flags.nyCount = 'counted';
+  S.flags.nyCountMiss = kitti.filter(b => !COUNT.marked.has(b)).length; S.flags.nyCountFul = [...COUNT.marked].filter(b => b.kind !== 'kitti').length;
   closeCount(); toast(`Насчитали ${COUNT.marked.size}. Расскажите Нюре`); UI.tasks();
 };
 $('#countC').addEventListener('pointerdown', e => {
@@ -379,7 +380,13 @@ function nyuraTalk() {
   if (!f.ny) { f.ny = 1; return say([L('Ой! Человек! Здравствуйте. Я Нюра, орнитолог. Третье лето считаю птиц на этом базаре.'), L('Вы смотритель? С маяка? Ваш огонь мне по ночам вместо ночника.'), L('Раз уж приплыли — поможете? Три дела, все несложные.'), L('Первое: пересчитайте моевок на северном уступе. С плато видно лучше всего. Только глупышей не считайте, они серые и с трубочкой на клюве.'), L('Второе: где-то на восточных уступах сидит кайра с кольцом на лапке. Прочитайте мне номер.'), L('И третье... привезите горячей ухи. Третью неделю на сухарях.')], () => UI.tasks()); }
   if (f.nyCount === 'counted') {
     if (f.nyCountOK) { f.nyCount = 'done'; return say([L(`${f.nyCountN}! Сходится с моими. Вот это глаз!`)], () => nyuraCheckDone()); }
-    f.nyCount = undefined; return say([L(`${f.nyCountN}? Хм, у меня вышло иначе. Глупышей не посчитали случайно? Пересчитайте, пожалуйста.`)], () => UI.tasks());
+    const ful = f.nyCountFul | 0, miss = f.nyCountMiss | 0, same = f.nyCountN === f.nyCountTrue;
+    const why = [];
+    if (same) why.push(`${f.nyCountN}? Число сходится, а вот отметки нет.`); else why.push(`${f.nyCountN}? У меня вышло ${f.nyCountTrue}.`);
+    if (ful) why.push(`${ful === 1 ? 'Отмечен один глупыш' : 'Отмечено глупышей: ' + ful}. Они серые, с толстым клювом-трубочкой, их не считаем.`);
+    if (miss) why.push((miss === 1 ? 'И одна моевка осталась без отметки.' : `И моевок без отметки: ${miss}.`) + ' Моевки белые, с жёлтым клювом и чёрными кончиками крыльев.');
+    why.push('Пересчитайте, пожалуйста. Я подожду.');
+    f.nyCount = undefined; return say(why.map(L), () => UI.tasks());
   }
   if (f.nyRing === 'seen') { f.nyRing = 'done'; return say([L('N-1147?! Это же моя! Я окольцевала её птенцом три года назад. Вернулась домой, умница.')], () => nyuraCheckDone()); }
   if (f.ny === 1 && !f.nyUha && has('uha')) { take('uha'); f.nyUha = 1; return say([L('Уха! Горячая! Можно я вас обниму? Ладно, не буду, я пахну рыбой. Хотя вы тоже.'), L('Спасибо, смотритель.')], () => nyuraCheckDone()); }
