@@ -37,7 +37,7 @@ addEventListener('keydown', e => {
   if (k === 'escape') { if (!$('#panel').hidden) UI.close(); else if (P.fish) stopFishing(); }
   if (k.startsWith('arrow')) e.preventDefault();
 });
-addEventListener('keyup', e => { K[e.key.toLowerCase()] = false; });
+addEventListener('keyup', e => { const k = e.key.toLowerCase(); K[k] = false; if (typeof MORSE_ON !== 'undefined' && MORSE_ON) morseKey(k, false, e); });
 addEventListener('blur', () => { for (const k in K) K[k] = false; });
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 (function touchSetup() {

@@ -24,9 +24,10 @@ function morseUI() {
   if (MS.phase === 'listen') { msg.textContent = 'Корабль мигает огнём. Смотрите и читайте: точка — короткая вспышка, тире — длинная.'; const b = hand('button', 'btn', 'Дослушать'); b.type = 'button'; b.onclick = () => { MS.phase = 'choose'; morseUI(); }; row.appendChild(b); }
   if (MS.phase === 'choose') { msg.textContent = '«СВЕТ ВИЖУ». Корабль видит ваш маяк. Что ответить?'; code.textContent = '... .-- . -   .-- .. ...- ..-'; REPLIES.forEach(([w, m]) => { const b = hand('button', 'btn', w + ' · ' + m); b.type = 'button'; b.onclick = () => { MS.word = w; MS.phase = 'send'; MS.pos = 0; morseUI(); }; row.appendChild(b); }); }
   if (MS.phase === 'send') {
-    msg.textContent = isTouch ? 'Держите кнопку: коротко — точка, долго — тире.' : 'Держите пробел или кнопку: коротко — точка, долго — тире.';
+    msg.textContent = (isTouch ? 'Нажмите на кнопку' : 'Нажмите пробел или кнопку') + ': коротко — точка, подержать — тире. Мигающий знак — следующий.';
     const k = hand('button', 'btn key', 'Мигнуть фонарём'); k.type = 'button'; k.id = 'mKey';
-    k.addEventListener('pointerdown', e => { e.preventDefault(); morsePress(true); }); k.addEventListener('pointerup', () => morsePress(false)); k.addEventListener('pointerleave', () => { if (MS.down) morsePress(false); });
+    k.addEventListener('pointerdown', e => { e.preventDefault(); try { k.setPointerCapture(e.pointerId); } catch (er) { } morsePress(true); });
+    k.addEventListener('pointerup', () => morsePress(false)); k.addEventListener('pointercancel', () => morsePress(false)); k.addEventListener('contextmenu', e => e.preventDefault());
     row.appendChild(k); morseCodeView();
   }
   if (MS.phase === 'done') { msg.textContent = 'Корабль мигнул два раза длинно и дал гудок: «Понял. Спасибо, маяк». Где-то там люди теперь знают, что маяк не спит.'; code.textContent = ''; const b = hand('button', 'btn primary', 'Закрыть'); b.type = 'button'; b.onclick = closeMorse; row.appendChild(b); }
@@ -35,16 +36,28 @@ function morseUI() {
 function morseCodeView() {
   const code = $('#mCode'), full = morseCode(MS.word).replace(/ /g, '');
   code.innerHTML = ''; let k = 0;
-  for (const ch of MS.word) { const span = hand('span', '', ''); for (const s of MORSE[ch]) { const e = hand('span', k < MS.pos ? 'ok' : '', s === '.' ? '•' : '—'); span.appendChild(e); k++; } code.appendChild(span); code.appendChild(document.createTextNode('   ')); }
+  for (const ch of MS.word) { const span = hand('span', '', ''); for (const s of MORSE[ch]) { const e = hand('span', k < MS.pos ? 'ok' : k === MS.pos ? 'next' : '', s === '.' ? '•' : '—'); span.appendChild(e); k++; } code.appendChild(span); code.appendChild(document.createTextNode('   ')); }
   void full;
 }
+const DASH_T = .3; // hold this long and the press becomes a dash, right away
 function morsePress(down) {
   if (MS.phase !== 'send') return;
-  if (down) { if (!MS.down) { MS.down = performance.now(); MS.lit = true; const k = $('#mKey'); if (k) k.classList.add('on'); } return; }
-  if (!MS.down) return; const dur = (performance.now() - MS.down) / 1000; MS.down = 0; MS.lit = false; const k = $('#mKey'); if (k) k.classList.remove('on');
-  const seq = morseCode(MS.word).replace(/ /g, ''), want = seq[MS.pos], got = dur < .28 ? '.' : '-';
-  if (got === want) { MS.pos++; AU.blip(); if (MS.pos >= seq.length) { MS.phase = 'done'; MS.t = 0; S.flags.morse = MS.word; unlock('morse'); memo('morse', 'Ночью ответил кораблю сигнальным фонарём: «' + MS.word + '». Он дал гудок.'); setTimeout(shipHorn, 900); morseUI(); return; } }
-  else { MS.err = 1; let start = 0, acc = 0; for (const ch of MS.word) { if (acc + MORSE[ch].length > MS.pos) { start = acc; break; } acc += MORSE[ch].length; } MS.pos = start; }
+  const k = $('#mKey');
+  if (down) { if (!MS.down) { MS.down = performance.now(); MS.lit = true; MS.done1 = false; if (k) k.classList.add('on'); } return; }
+  if (!MS.down) return; MS.down = 0; MS.lit = false; if (k) k.classList.remove('on');
+  if (!MS.done1) morseSymbol('.'); // a short press: a dot (a long one was already sent as a dash)
+}
+// called every frame while the key is held: once it's long enough it counts as a dash without waiting for release
+function morseHold() { if (MS.down && !MS.done1 && (performance.now() - MS.down) / 1000 >= DASH_T) { MS.done1 = true; morseSymbol('-'); } }
+function morseSymbol(got) {
+  const seq = morseCode(MS.word).replace(/ /g, ''), want = seq[MS.pos];
+  if (got === want) {
+    MS.pos++; AU.blip(); MS.hint = '';
+    if (MS.pos >= seq.length) { MS.phase = 'done'; MS.t = 0; MS.down = 0; MS.lit = false; S.flags.morse = MS.word; unlock('morse'); memo('morse', 'Ночью ответил кораблю сигнальным фонарём: «' + MS.word + '». Он дал гудок.'); setTimeout(shipHorn, 900); morseUI(); return; }
+  } else {
+    MS.err = 1; let start = 0, acc = 0; for (const ch of MS.word) { if (acc + MORSE[ch].length > MS.pos) { start = acc; break; } acc += MORSE[ch].length; } MS.pos = start;
+    $('#mMsg').textContent = want === '-' ? 'Здесь тире: подержите подольше. Буква заново.' : 'Здесь точка: нажмите коротко. Буква заново.';
+  }
   morseCodeView();
 }
 function morseKey(k, down, e) {
@@ -63,11 +76,15 @@ function drawMorse(c, w, h, t) {
   R(c, 14, h - 30, 18, 14, '#3a3e48'); R(c, 18, h - 16, 10, 16, '#2c2f38'); R(c, 32, h - 26, 4, 6, '#c9a24a');
   if (MS.lit) { const gg = c.createRadialGradient(38, h - 23, 0, 38, h - 23, 60); gg.addColorStop(0, 'rgba(255,230,160,.8)'); gg.addColorStop(1, 'rgba(255,230,160,0)'); c.fillStyle = gg; c.fillRect(0, h - 90, 110, 90); }
   if (MS.err > 0) { c.fillStyle = `rgba(200,60,50,${MS.err * .3})`; c.fillRect(0, 0, w, h); }
+  // hold meter: fills while the key is held; past the mark it's a dash
+  if (MS.phase === 'send') { const held = MS.down ? (performance.now() - MS.down) / 1000 : 0, f = Math.min(1, held / (DASH_T * 1.6)), bx = 46, by = h - 12, bw = 70;
+    R(c, bx - 1, by - 1, bw + 2, 6, '#1d1a24'); R(c, bx, by, bw, 4, '#2c3550'); R(c, bx, by, Math.round(bw * f), 4, held >= DASH_T ? '#ffc95c' : '#e8dcc0'); R(c, bx + Math.round(bw / 1.6), by - 2, 1, 8, '#ffc95c');
+    c.font = '8px Monocraft, monospace'; c.textAlign = 'left'; c.fillStyle = '#e8dcc0'; c.fillText(MS.down ? (held >= DASH_T ? 'тире' : 'точка') : '', bx + bw + 6, by + 5); }
   // decoded text while listening
   if (MS.phase === 'listen') { const lt = MS.t % (SHIP_TL.len + 2.5); const shown = SHIP_TL.ev.filter(e => e[0] <= lt); let txt = ''; let lastCh = null, n = 0; for (const e of SHIP_TL.ev) { if (e[0] > lt) break; } const letters = []; SHIP_TL.ev.forEach(e => { if (e[0] <= lt && e[2] !== letters[letters.length - 1]) letters.push(e[2]); }); txt = letters.join(''); void shown; void lastCh; void n; c.fillStyle = '#ffc95c'; c.font = '10px Monocraft, monospace'; c.textAlign = 'center'; c.fillText(txt.length > 4 ? txt.slice(0, 4) + ' ' + txt.slice(4) : txt, w / 2, 16); }
 }
 function morseFrame(dt) {
-  if (!MORSE_ON) return; MS.t += dt; MS.err = Math.max(0, MS.err - dt * 2);
+  if (!MORSE_ON) return; MS.t += dt; MS.err = Math.max(0, MS.err - dt * 2); morseHold();
   const cv = $('#morseC'), c = cv.getContext('2d'); c.imageSmoothingEnabled = false; drawMorse(c, cv.width, cv.height, G.time);
 }
 
