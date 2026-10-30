@@ -112,7 +112,7 @@ const OUTLINE_KINDS = {
   // outdoors
   // things you can pick up
   branch: 1, supply: 1, debris: 1, // berry bushes and shells already have their own outline
-  boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, wreck: 2, tent: 2, tripod: 1, crates: 1, vane: 1,
+  boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, wreck: 2, tent: 2, tripod: 1, crates: 1,
 };
 let OLID = 0; const _addObjPlain = addObj;
 addObj = function (map, o) {
