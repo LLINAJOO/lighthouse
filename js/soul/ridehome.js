@@ -86,7 +86,9 @@ function drawRideHome(c, w, h, t, k, o = {}) {
   // the island falling behind
   const s = lerp(1, .42, ks), ix = lerp(w * .24, -w * .04, ks), base = hor + 1, land = mixHex('#3a2c52', '#121630', ks), land2 = mixHex('#4a3560', '#191d3a', ks);
   c.fillStyle = land; c.beginPath(); c.moveTo(ix - 92 * s, base); c.lineTo(ix - 66 * s, base - 10 * s); c.lineTo(ix - 34 * s, base - 17 * s); c.lineTo(ix - 14 * s, base - 24 * s); c.lineTo(ix + 20 * s, base - 24 * s); c.lineTo(ix + 44 * s, base - 14 * s); c.lineTo(ix + 82 * s, base - 6 * s); c.lineTo(ix + 104 * s, base); c.fill();
-  for (let i = 0; i < 6; i++) { const tx = ix - 62 * s + i * 8 * s, ty = base - 13 * s - (i % 2) * 3 * s, th = (12 + (i % 3) * 3) * s; c.fillStyle = i % 2 ? land2 : land; c.beginPath(); c.moveTo(tx, ty - th); c.lineTo(tx - 5 * s, ty); c.lineTo(tx + 5 * s, ty); c.fill(); }
+  const ridge = [[-92, 0], [-66, 10], [-34, 17], [-14, 24], [20, 24], [44, 14], [82, 6], [104, 0]];
+  const landTop = dx => { for (let j = 1; j < ridge.length; j++) if (dx <= ridge[j][0]) { const [x0, h0] = ridge[j - 1], [x1, h1] = ridge[j]; return lerp(h0, h1, (dx - x0) / (x1 - x0)); } return 0; };
+  for (let i = 0; i < 6; i++) { const dx = -62 + i * 8, tx = ix + dx * s, ty = base - (landTop(dx) - 1.5) * s,  th = (12 + (i % 3) * 3) * s; c.fillStyle = i % 2 ? land2 : land; c.beginPath(); c.moveTo(tx, ty - th); c.lineTo(tx - 5 * s, ty); c.lineTo(tx + 5 * s, ty); c.fill(); }
   // the lighthouse: stripes while there's light, a silhouette with a burning lamp later
   const lx = Math.round(ix), lb = base - 24 * s, lt = lb - 52 * s, stripeA = clamp(1 - ks * 1.6, 0, 1);
   for (let y = Math.floor(lt); y < lb; y++) { const f = (y - lt) / (lb - lt), hw = (4 + f * 3) * s, band = Math.floor(f * 5) % 2; R(c, lx - hw, y, hw * 2, 1, mixHex(band ? '#b8524e' : '#e6d8c8', land, 1 - stripeA * .85)); R(c, lx + hw * .3, y, hw * .7, 1, mixHex(band ? '#8a3a3a' : '#b8a8a0', land, 1 - stripeA * .85)); }
