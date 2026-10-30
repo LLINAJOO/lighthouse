@@ -472,7 +472,7 @@ function spawnIslets() {
   for (const id of ['seals', 'cliffs']) MAPS[id].objs = MAPS[id].objs.filter(o => !o.daily);
   const rnd = rng(S.day * 777 + 3), sm = MAPS.seals;
   const sand = []; for (let y = 0; y < sm.h; y++) for (let x = 0; x < sm.w; x++) if (tAt(sm, x, y) === SAND && !sm.tide.includes(y * sm.w + x) && [[0, 1], [1, 0], [-1, 0], [0, -1]].some(([dx, dy]) => isWater(tAt(sm, x + dx, y + dy)))) sand.push([x * T + 8, y * T + 9]);
-  sand.sort(() => rnd() - .5).slice(0, 5).forEach(([x, y], i) => { const o = addObj('seals', { daily: 1, x, y, kind: 'shell', r: 12, gone: false, on: () => !o.gone, draw(c, sx, sy) { R(c, sx - 2, sy - 2, 5, 3, i % 2 ? '#f6c8d6' : '#f3d2c0'); R(c, sx - 1, sy - 3, 3, 1, '#fff0f4'); } }); o.use = { label: () => 'Поднять ракушку', run: () => startAct('pick', .4, () => { o.gone = true; give('shell'); }) }; });
+  sand.sort(() => rnd() - .5).slice(0, 5).forEach(([x, y], i) => { const o = addObj('seals', { daily: 1, x, y, kind: 'shell', r: 12, gone: false, on: () => !o.gone, draw(c, sx, sy) { drawFind(c, 'shell', sx, sy, false); } }); o.use = { label: () => 'Поднять ракушку', run: () => startAct('pick', .4, () => { o.gone = true; give('shell'); }) }; });
   const spots = [[17.2, 12.6], [20.4, 11.6], [27.2, 13.6], [30.4, 12.4], [9.4, 14.2]].sort(() => rnd() - .5).slice(0, 4);
   spots.forEach(([x, y]) => {
     const o = addObj('seals', { daily: 1, x: x * T, y: y * T, kind: 'stone', r: 14, flipped: false, found: null, ft: 0, solid: null, draw(c, sx, sy) {

@@ -237,7 +237,7 @@ function spawnDaily() {
   const rnd = rng(S.day * 101);
   // shells (keep total around 7 on the beach)
   const spots = WORLD.shellSpots.slice().sort(() => rnd() - .5).slice(0, 7);
-  spots.forEach(([x, y], i) => addObj('island', { daily: 1, x, y, kind: 'shell', r: 12, gone: false, on() { return !this.gone; }, draw(c, sx, sy) { const s = Math.sin(G.time * 2 + i) > .85; R(c, sx - 2, sy - 2, 5, 3, '#f3d2c0'); R(c, sx - 1, sy - 3, 3, 1, '#f7e2d6'); R(c, sx - 2, sy, 5, 1, '#d9a990'); if (s) R(c, sx + 2, sy - 4, 1, 1, '#fff'); }, use: { label: () => 'Поднять ракушку', run() { const o = this; startAct('pick', .4, () => { o.gone = true; give('shell'); UI.tasks(); }); } } }));
+  spots.forEach(([x, y], i) => addObj('island', { daily: 1, x, y, kind: 'shell', r: 12, gone: false, on() { return !this.gone; }, draw(c, sx, sy) { drawFind(c, 'shell', sx, sy, Math.sin(G.time * 2 + i) > .85); }, use: { label: () => 'Поднять ракушку', run() { const o = this; startAct('pick', .4, () => { o.gone = true; give('shell'); UI.tasks(); }); } } }));
   // fix "this" binding for shell use
   isl.objs.filter(o => o.kind === 'shell').forEach(o => { const run = o.use.run; o.use = { label: o.use.label, run: () => run.call(o) }; });
   // berry bushes

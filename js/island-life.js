@@ -443,8 +443,8 @@ function spawnExtras() {
   });
   const beach = shuf(WORLD.shellSpots);
   const pick = (spot, id, label, draw) => { const [x, y] = spot; const o = addObj('island', { daily: 1, x: x + 3, y: y + 2, kind: 'mat', r: 12, gone: false, on: () => !o.gone, draw }); o.use = { label: () => label, run: () => startAct('pick', .45, () => { o.gone = true; give(id); }) }; };
-  beach.slice(0, 3).forEach(s => pick(s, 'driftwood', 'Подобрать плавник', (c, sx, sy) => { R(c, sx - 7, sy - 3, 14, 3, '#cbb48e'); R(c, sx - 7, sy - 3, 14, 1, '#e2cfaa'); R(c, sx + 3, sy - 5, 2, 2, '#cbb48e'); R(c, sx - 5, sy - 2, 3, 1, '#a8916c'); }));
-  beach.slice(3, 5).forEach(s => pick(s, 'seaglass', 'Поднять морское стекло', (c, sx, sy) => { R(c, sx - 2, sy - 3, 4, 3, '#7fd0b0'); R(c, sx - 1, sy - 3, 1, 1, '#e8fff6'); if (Math.sin(G.time * 3 + sx) > .8) R(c, sx + 2, sy - 5, 1, 1, '#fff'); }));
+  beach.slice(0, 3).forEach(s => pick(s, 'driftwood', 'Подобрать плавник', (c, sx, sy) => { drawFind(c, 'driftwood', sx, sy, false); }));
+  beach.slice(3, 5).forEach(s => pick(s, 'seaglass', 'Поднять морское стекло', (c, sx, sy) => { drawFind(c, 'seaglass', sx, sy, Math.sin(G.time * 3 + sx) > .8); }));
   const east = WORLD.shellSpots.filter(([x, y]) => x > 46 * T && x < 60 * T && y > 17 * T && y < 34 * T);
   spawnIslets();
   shuf(east.length >= 2 ? east : beach.slice(5, 9)).slice(0, 2).forEach(s => pick(s, 'gullfeather', 'Поднять перо чайки', (c, sx, sy) => { for (let i = 0; i < 5; i++) R(c, sx - 3 + i, sy - 1 - i * .6, 2, 1, i > 2 ? '#9aa3ad' : '#f4f4f4'); }));

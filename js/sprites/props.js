@@ -111,7 +111,7 @@ const OUTLINE_KINDS = {
   gen: 1, tools: 1, bench_w: 2, rope: 1, bike: 1, barrel: 1, nets: 1, radio: 1, // the gear mechanism has its own outline
   // outdoors
   // things you can pick up
-  shell: 1, feather: 1, branch: 1, berry: 1, supply: 1, debris: 1,
+  feather: 1, branch: 1, supply: 1, debris: 1, // berry bushes and shells already have their own outline
   boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, easel: 1, wreck: 2, tent: 2, tripod: 1, crates: 1, vane: 1,
 };
 let OLID = 0; const _addObjPlain = addObj;
@@ -129,3 +129,39 @@ drawHerb = function (c, x, y, k, t, wind, seed) { outlineDraw(c, Math.round(x), 
 const _drawBoatPlain = drawBoatKind;
 drawBoatKind = function (c, x, y, k, time, mv, seed) { outlineDraw(c, Math.round(x), Math.round(y), 150, 110, 75, 70, (g, ox, oy) => _drawBoatPlain(g, ox, oy, k, time, mv, seed), 'b' + k); };
 // meadow flowers stay without an outline: only things you can pick up stand out
+
+// ===== Finds: shell (scallop), driftwood (twisted branch), sea glass (three pieces) =====
+const FIND_ART = {
+  shell(g, S) { // scallop: a fan with even ribs and two little ears at the hinge
+    const c = ['#b85a4c', '#e48c78', '#f6b8a0', '#ffe0d0'], cx = S === 16 ? 8 : 5, by = S === 16 ? 11.5 : 6.5, rr = S === 16 ? 6.4 : 4.4;
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      const dx = x + .5 - cx, dy = by - (y + .5), r = Math.hypot(dx, dy); if (dy < 0 || r > rr) continue;
+      const ang = Math.atan2(dx, dy), band = Math.floor((ang + 1.6) / (S === 16 ? .4 : .6)) % 2;
+      let col = band ? c[2] : c[1]; if (r > rr - .9) col = c[0]; else if (band && ang < -.3 && r > 1.5) col = c[3]; R(g, x, y, 1, 1, col);
+    }
+    if (S === 16) { R(g, 5, 11, 6, 2, c[1]); R(g, 5, 11, 6, 1, c[2]); R(g, 7, 13, 2, 1, c[0]); } else { R(g, 3, 6, 4, 1, c[1]); R(g, 4, 7, 2, 1, c[0]); }
+  },
+  driftwood(g, S) { // a twisted, bleached branch with a fork
+    const c = ['#6e624e', '#9e8f72', '#c9bba0', '#e6dccb'], k = S === 16 ? 1 : .8;
+    for (let i = 0; i < Math.round(12 * k); i++) { const x = 1 + i, y = Math.round((S === 16 ? 9 : 4) - i * .4 * k + Math.sin(i * .9) * .8); R(g, x, y, 1, S === 16 ? 3 : 2, c[1]); R(g, x, y, 1, 1, c[3]); R(g, x, y + (S === 16 ? 2 : 1), 1, 1, c[0]); if (i % 4 === 1) R(g, x, y + 1, 1, 1, c[2]); }
+    const fx = S === 16 ? 8 : 6, fy = S === 16 ? 6 : 2; for (let i = 0; i < (S === 16 ? 4 : 2); i++) { R(g, fx + i, fy - i, 1, 2, c[1]); R(g, fx + i, fy - i, 1, 1, c[3]); }
+    R(g, 1, S === 16 ? 9 : 4, 1, 1, '#b29c70');
+  },
+  seaglass(g, S) { // three frosted pieces: brown, white and aqua
+    const cs = [['#7a4a22', '#a8682e', '#d8a060', '#f6d8a8'], ['#a9b4b8', '#cfd8da', '#eef4f4', '#ffffff'], ['#2f8a8a', '#4fb0aa', '#86d6cc', '#d0fff6']];
+    const P16 = [[4.5, 5, 3, 2.5], [11, 6.5, 2.4, 2.1], [8, 11, 3, 2.4]], P8 = [[2.5, 2.5, 1.8, 1.5], [7, 3, 1.6, 1.4], [4.5, 5.5, 1.8, 1.4]];
+    (S === 16 ? P16 : P8).forEach(([cx, cy, rx, ry], i) => { const c = cs[i]; for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) { const dx = (x + .5 - cx) / rx, dy = (y + .5 - cy) / ry, d = dx * dx + dy * dy; if (d > 1) continue; R(g, x, y, 1, 1, d > .6 ? c[1] : dx < 0 && dy < 0 ? c[3] : c[2]); } });
+  },
+};
+// inventory icons (16x16, outline inside the square)
+const _iconPlain = icon;
+icon = function (id) {
+  if (FIND_ART[id]) { if (!ICON[id]) { const [cv, g] = mk(16, 16); FIND_ART[id](g, 16); outlinePass(cv, OUTL); ICON[id] = cv; } return ICON[id]; }
+  return _iconPlain(id);
+};
+// small versions lying on the beach
+function findSprite(id) { return outlinedSprite('find' + id, id === 'driftwood' ? 14 : 10, 9, g => FIND_ART[id](g, 8)); }
+function drawFind(c, id, sx, sy, sparkle) {
+  const s = findSprite(id); c.drawImage(s, Math.round(sx - s.width / 2), Math.round(sy - s.height + 2));
+  if (sparkle) R(c, sx + 3, sy - 7, 1, 1, '#fff');
+}
