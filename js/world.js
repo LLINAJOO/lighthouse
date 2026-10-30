@@ -110,6 +110,15 @@ function progress(id, n = 1) {
   if (!t.n || t.c >= t.n) { t.done = true; S.done++; stat('done', S.day + ':' + t.id); toast('Готово: ' + t.text.replace(/ \(.*\)/, ''), null, true); AU.chime(); if (S.tasks.every(x => x.done) && !S.flags['perfect' + S.day]) { S.flags['perfect' + S.day] = 1; S.stats.perfectDays = (S.stats.perfectDays || 0) + 1; unlock('firstday'); } }
   UI.tasks();
 }
+// the lost gull chick turns up in a different spot each game: the near forest or the Far forest beyond the isthmus
+function chickPos() {
+  if (!S.flags.chickPos) {
+    const spots = [[11.5 * T, 21.4 * T]].concat(WORLD.branchSpots.filter((_, i) => i < 6 || i >= 10).map(([x, y]) => [x + 10, y + 7]));
+    const was = MAP; MAP = MAPS.island; const ok = spots.filter(([x, y]) => !blocked(x, y) && !blocked(x - 8, y) && !blocked(x + 8, y)); MAP = was;
+    const list = ok.length ? ok : spots; S.flags.chickPos = list[Math.floor(Math.random() * list.length)];
+  }
+  return S.flags.chickPos;
+}
 function give(id, n = 1, quiet) {
   S.inv[id] = (S.inv[id] || 0) + n; if (typeof atlasOnGive === 'function') atlasOnGive(id);
   if (ITEMS[id] && ITEMS[id].souv && !S.souv.includes(id)) { S.souv.push(id); AU.chime(); toast('Сувенир: ' + ITEMS[id].n, id); if (S.souv.length >= SOUV_TOTAL) unlock('collector'); }
@@ -201,7 +210,7 @@ function buildWorld() {
   addObj('island', { x: 20 * T, y: 35.3 * T, kind: 'terns', on: () => S.day === 2 || (S.day === 3 && !S.souv.includes('feather')), draw(c, sx, sy) { if (S.day !== 2) return; [[-12, -2], [-4, 1], [5, -3], [13, 0], [2, 4]].forEach(([dx, dy], i) => drawTern(c, sx + dx, sy + dy, G.time, i)); } });
   addObj('island', { x: 22.4 * T, y: 35.6 * T, kind: 'feather', on: () => (S.day === 2 || S.day === 3) && !S.souv.includes('feather'), r: 12, draw(c, sx, sy) { drawFeatherFind(c, 'feather', sx, sy); }, use: { label: () => 'Поднять перо', run: () => startAct('pick', .6, () => { give('feather'); say([[HERO, 'Перо полярной крачки. Они летят с одного края света на другой — и всё равно находят дорогу.']]); }) } });
   // chick (day 5+)
-  addObj('island', { x: 11.5 * T, y: 21.4 * T, kind: 'chick', on: () => S.q.chick === 1 && P.carry !== 'chick', r: 14, draw(c, sx, sy) { const b = Math.sin(G.time * 6) > .7 ? -1 : 0; R(c, sx - 3, sy - 5 + b, 6, 4, '#d8d8d0'); R(c, sx + 1, sy - 7 + b, 3, 3, '#e8e8e0'); R(c, sx + 4, sy - 6 + b, 1, 1, '#f0b23a'); R(c, sx + 2, sy - 6 + b, 1, 1, '#2c2f38'); }, use: { label: () => 'Взять птенца', run: () => { P.carry = 'chick'; say([[HERO, 'Вот ты где. Тише, тише. Отнесу тебя к своим — на скалы на востоке.']]); UI.tasks(); } } });
+  addObj('island', { get x() { return chickPos()[0]; }, get y() { return chickPos()[1]; }, kind: 'chick', on: () => S.q.chick === 1 && P.carry !== 'chick', r: 14, draw(c, sx, sy) { drawChick(c, sx, sy, Math.sin(G.time * 6) > .7 ? -1 : 0); }, use: { label: () => 'Взять птенца', run: () => { P.carry = 'chick'; say([[HERO, 'Вот ты где. Тише, тише. Отнесу тебя к своим — на скалы на востоке.']]); UI.tasks(); } } });
   addObj('island', { x: WORLD.colony[0], y: WORLD.colony[1], kind: 'colony', r: 26, draw() { }, use: { label: () => P.carry === 'chick' ? 'Вернуть птенца чайкам' : (S.day >= 1 ? 'Скалы с чайками' : null), run: colonyRun } });
   // dynamic per-day objects live in S.placed and are spawned in spawnDaily()
 

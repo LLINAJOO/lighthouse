@@ -479,7 +479,7 @@ function drawHero() {
   if (P.reading > 0) { R(ctx, x - 4, y - 12, 8, 6, '#f2e6cc'); R(ctx, x - 3, y - 10, 6, 1, '#c9b48a'); }
   if (P.fish) { R(ctx, x + dx * 4, y - 10, 1, 1, '#8a5a32'); }
   if (P.carry === 'crate') drawCrate(ctx, x, y - 22, { a: 0, dx: 0, dy: 0 }, false);
-  if (P.carry === 'chick') { R(ctx, x - 4, y - 24, 8, 6, '#1d1a24'); R(ctx, x - 3, y - 23, 6, 4, '#d8d8d0'); R(ctx, x + 1, y - 25, 3, 3, '#e8e8e0'); R(ctx, x + 4, y - 24, 1, 1, '#f0b23a'); R(ctx, x + 2, y - 24, 1, 1, '#2c2f38'); }
+  if (P.carry === 'chick') drawChick(ctx, x, y - 19, 0);
 }
 function drawFishing(cam) {
   const f = P.fish, [dx, dy] = DIRV[P.dir];

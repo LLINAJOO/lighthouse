@@ -197,3 +197,13 @@ function drawFeatherFind(c, id, sx, sy) {
   const s = outlinedSprite('fthr' + id, 11, 11, g => paintFeather(g, FEATHER_LOOK[id], 11));
   c.drawImage(s, Math.round(sx - s.width / 2), Math.round(sy - s.height + 3));
 }
+
+// ===== The lost gull chick: fluffy grey-white, outlined; same sprite on the ground and on the keeper's head =====
+function drawChick(c, x, y, bob) {
+  const s = outlinedSprite('chick', 9, 8, g => {
+    R(g, 0, 3, 7, 4, '#d8d8d0'); R(g, 1, 2, 5, 1, '#e4e4dc'); R(g, 0, 6, 7, 1, '#b8b8b0'); R(g, 1, 4, 2, 1, '#c4c4bc'); // body with a little wing
+    R(g, 4, 0, 4, 4, '#ecece6'); R(g, 4, 0, 4, 1, '#f6f6f2'); R(g, 6, 1, 1, 1, '#2c2f38'); R(g, 8, 2, 1, 1, '#f0b23a'); // head, eye, beak
+    R(g, 2, 7, 1, 1, '#d89a5a'); R(g, 5, 7, 1, 1, '#d89a5a'); // feet
+  });
+  c.drawImage(s, Math.round(x - 5), Math.round(y - 9 + (bob || 0)));
+}

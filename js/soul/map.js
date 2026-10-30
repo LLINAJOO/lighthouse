@@ -117,7 +117,7 @@ function taskReady(id) {
 function guideList() {
   const out = S.tasks.filter(t => !t.done && taskReady(t.id)).map(t => ({ id: 't:' + t.id, label: t.text.replace(/ \(.*\)/, ''), where: () => taskWhere(t.id) }));
   if (S.q.uha === 1 && has('uha')) out.push({ id: 'q:uha', label: 'Уха для Матвея', where: () => { const n = visitsNow().npcs.find(n => n.id === 'matvey'); return n ? at('island', n.x, n.y) : null; } });
-  if (S.q.chick === 1) out.push({ id: 'q:chick', label: P.carry === 'chick' ? 'Птенца — к чайкам' : 'Птенец в лесу', where: () => P.carry === 'chick' ? at('island', WORLD.colony[0], WORLD.colony[1]) : at('island', 11.5 * T, 21.4 * T) });
+  if (S.q.chick === 1) out.push({ id: 'q:chick', label: P.carry === 'chick' ? 'Птенца — к чайкам' : 'Птенец в лесу', where: () => P.carry === 'chick' ? at('island', WORLD.colony[0], WORLD.colony[1]) : at('island', chickPos()[0], chickPos()[1]) });
   if (has('map') && !S.flags.dug) out.push({ id: 'q:dig', label: 'Крестик на карте', where: () => at('island', 21.5 * T, 13.4 * T) });
   if (S.day === 6 && S.flags.legend && S.min >= 1230 && !S.flags.whalesSeen) out.push({ id: 'q:whale', label: 'Смотровая ночью', where: () => at('island', 46.5 * T, 13.2 * T) });
   if (S.day === 3 && S.flags.storm && !S.flags.stormL) out.push({ id: 'q:lida', label: 'Светить Лиде с пирса', where: () => at('island', 31 * T, 45.6 * T) });
