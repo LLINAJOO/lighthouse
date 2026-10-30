@@ -357,3 +357,4 @@ body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
 .paper.info .btn{justify-self:start}
 .info-ta{width:100%;box-sizing:border-box;font-family:var(--f-body);font-size:15px;padding:8px;border:2px solid #b8a27a;background:#fffaf0;color:#3b2f22;resize:vertical}
 #title .row.small .btn{font-size:15px;padding:6px 14px}
+.paper.info .info-link{justify-self:start;text-decoration:none;display:inline-block}
