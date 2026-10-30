@@ -107,8 +107,15 @@ function taskWhere(id) {
   }
   return null;
 }
+// tasks that can't be done yet (evening ones) get no path until their time comes
+function taskReady(id) {
+  if (id === 'lamp') return lampAvail();
+  if (id === 'journal') return journalAvail();
+  if (id === 'pierEnd') return !!S.lampLit;
+  return true;
+}
 function guideList() {
-  const out = S.tasks.filter(t => !t.done).map(t => ({ id: 't:' + t.id, label: t.text.replace(/ \(.*\)/, ''), where: () => taskWhere(t.id) }));
+  const out = S.tasks.filter(t => !t.done && taskReady(t.id)).map(t => ({ id: 't:' + t.id, label: t.text.replace(/ \(.*\)/, ''), where: () => taskWhere(t.id) }));
   if (S.q.uha === 1 && has('uha')) out.push({ id: 'q:uha', label: 'Уха для Матвея', where: () => { const n = visitsNow().npcs.find(n => n.id === 'matvey'); return n ? at('island', n.x, n.y) : null; } });
   if (S.q.chick === 1) out.push({ id: 'q:chick', label: P.carry === 'chick' ? 'Птенца — к чайкам' : 'Птенец в лесу', where: () => P.carry === 'chick' ? at('island', WORLD.colony[0], WORLD.colony[1]) : at('island', 11.5 * T, 21.4 * T) });
   if (has('map') && !S.flags.dug) out.push({ id: 'q:dig', label: 'Крестик на карте', where: () => at('island', 21.5 * T, 13.4 * T) });
@@ -131,7 +138,7 @@ function waypoint(tg) {
 function guideActive() {
   if (G.mode !== 'play' || G.quiet) return null;
   let id = G.guide;
-  if (!id && S.day === 1 && G.guideOff !== 1) { const t = S.tasks.find(t => !t.done && taskWhere(t.id)); if (t) id = 't:' + t.id; }
+  if (!id && S.day === 1 && G.guideOff !== 1) { const t = S.tasks.find(t => !t.done && taskReady(t.id) && taskWhere(t.id)); if (t) id = 't:' + t.id; }
   if (!id) return null;
   const g = guideList().find(g => g.id === id); if (!g) { if (G.guide === id) G.guide = null; return null; }
   return waypoint(g.where());

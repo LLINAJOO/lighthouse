@@ -206,7 +206,13 @@ function updatePlayer(dt) {
   if (P.moving) {
     ix /= Math.max(1, len); iy /= Math.max(1, len);
     const sp = (P.carry ? 46 : P.run ? 100 : 60) * dt;
-    if (Math.abs(ix) > Math.abs(iy)) P.dir = ix < 0 ? 1 : 2; else P.dir = iy < 0 ? 3 : 0;
+    // facing: keep the current side until the other axis clearly wins, so a diagonal doesn't flicker between sprites
+    const ax = Math.abs(ix), ay = Math.abs(iy), side = P.dir === 1 || P.dir === 2;
+    if (side ? ay > ax * 1.3 : ax > ay * 1.3) P.dir = ax > ay ? (ix < 0 ? 1 : 2) : (iy < 0 ? 3 : 0);
+    else if (side && ix) P.dir = ix < 0 ? 1 : 2; else if (!side && iy) P.dir = iy < 0 ? 3 : 0; else P.dir = ax > ay ? (ix < 0 ? 1 : 2) : (iy < 0 ? 3 : 0);
+    // on a clean diagonal both axes step on the same frame (no staircase wobble)
+    const diag = ax > .2 && ay > .2 && Math.abs(ax - ay) < .12;
+    if (diag) { const m = (ax + ay) / 2; ix = Math.sign(ix) * m; iy = Math.sign(iy) * m; const fx = P.x - Math.floor(P.x); P.y = Math.floor(P.y) + (Math.sign(ix) === Math.sign(iy) ? fx : (1 - fx) % 1); }
     const nx = P.x + ix * sp; if (!blocked(nx, P.y)) P.x = nx;
     const ny = P.y + iy * sp; if (!blocked(P.x, ny)) P.y = ny;
     P.animT += dt * (P.run ? 13 : 8); P.frame = Math.floor(P.animT) % 4;
