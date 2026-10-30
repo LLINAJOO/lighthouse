@@ -1,11 +1,20 @@
 "use strict";
 // ===== Props with a dark outline: trees, bushes, benches, the telescope (cached sprites) =====
 const PROP_C = new Map();
-function outlinedSprite(key, w, h, paint) {
+function outlinedSprite(key, w, h, paint, after) {
   let cv = PROP_C.get(key); if (cv) return cv;
   const [a, g] = mk(w, h); paint(g);
   const [b, bg] = mk(w + 2, h + 2); bg.drawImage(a, 1, 1); outlinePass(b, OUTL);
+  if (after) after(bg); // drawn on top of the outline (grass needs none)
   PROP_C.set(key, b); return b;
+}
+// grass tufts round a trunk foot, so the outline doesn't end in a hard line on the ground
+const TUFT_G = ['#3f7a32', '#2f6126', '#5c9a45'];
+function grassFoot(g, cx, by, spread, seed) {
+  const r = rng(seed);
+  const tuft = (tx, n) => { for (let i = 0; i < n; i++) { const hh = 3 + (r() * 4 | 0), lean = (i - (n - 1) / 2) * .5; for (let k = 0; k < hh; k++) R(g, tx + i + Math.round(lean * k / hh), by - k, 1, 1, k === hh - 1 ? TUFT_G[2] : TUFT_G[i % 2]); } };
+  tuft(cx - spread - 4, 5); tuft(cx + spread - 1, 5); tuft(cx - 2, 5); // the middle clump hides the trunk's bottom edge
+  if (r() < .6) tuft(cx - spread - 6, 2); if (r() < .6) tuft(cx + spread + 4, 2);
 }
 const q2 = v => Math.round(v * 2) / 2;
 function drawPine(c, x, y, s, time, wind, sh, seed) {
@@ -21,7 +30,7 @@ function drawPine(c, x, y, s, time, wind, sh, seed) {
       R(g, ax - Math.round(lw * s * .6) + sx, by - 2, Math.round(lw * s * .6), 1, '#5aab78');
       R(g, ax + sx + 1, by - 2, Math.round(lw * s * .5), 1, shade(col, .82)); // shaded right side of each tier
     });
-  });
+  }, g => grassFoot(g, ax + 1, ay + 2, 3, 11));
   c.drawImage(spr, Math.round(x - ax - 1), Math.round(y - ay - 1));
 }
 function drawRoundTree(c, x, y, s, time, wind, sh, seed) {
@@ -35,7 +44,7 @@ function drawRoundTree(c, x, y, s, time, wind, sh, seed) {
     disc(g, ax - 3 * s + sway, ay - 19 * s, 6 * s, '#4f9556');
     disc(g, ax + 4 * s + sway, ay - 18 * s, 5 * s, '#4a8d52');
     disc(g, ax - 1 * s + sway, ay - 22 * s, 3 * s, '#66ad66');
-  });
+  }, g => grassFoot(g, ax + 1, ay + 2, 3, 17));
   c.drawImage(spr, Math.round(x - ax - 1), Math.round(y - ay - 1));
 }
 function drawBush(c, x, y, sh, berries) {
