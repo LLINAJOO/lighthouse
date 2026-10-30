@@ -447,7 +447,7 @@ function spawnExtras() {
   beach.slice(3, 5).forEach(s => pick(s, 'seaglass', 'Поднять морское стекло', (c, sx, sy) => { drawFind(c, 'seaglass', sx, sy, Math.sin(G.time * 3 + sx) > .8); }));
   const east = WORLD.shellSpots.filter(([x, y]) => x > 46 * T && x < 60 * T && y > 17 * T && y < 34 * T);
   spawnIslets();
-  shuf(east.length >= 2 ? east : beach.slice(5, 9)).slice(0, 2).forEach(s => pick(s, 'gullfeather', 'Поднять перо чайки', (c, sx, sy) => { for (let i = 0; i < 5; i++) R(c, sx - 3 + i, sy - 1 - i * .6, 2, 1, i > 2 ? '#9aa3ad' : '#f4f4f4'); }));
+  shuf(east.length >= 2 ? east : beach.slice(5, 9)).slice(0, 2).forEach(s => pick(s, 'gullfeather', 'Поднять перо чайки', (c, sx, sy) => { drawFeatherFind(c, 'gullfeather', sx, sy); }));
 }
 
 function iconExtra(id, p, c) {

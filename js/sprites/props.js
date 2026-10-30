@@ -111,7 +111,7 @@ const OUTLINE_KINDS = {
   gen: 1, tools: 1, bench_w: 2, rope: 1, bike: 1, barrel: 1, nets: 1, radio: 1, // the gear mechanism has its own outline
   // outdoors
   // things you can pick up
-  feather: 1, branch: 1, supply: 1, debris: 1, // berry bushes and shells already have their own outline
+  branch: 1, supply: 1, debris: 1, // berry bushes and shells already have their own outline
   boat: 2, nadezhda: 2, drift: 1, ladder: 1, sign: 1, post: 1, easel: 1, wreck: 2, tent: 2, tripod: 1, crates: 1, vane: 1,
 };
 let OLID = 0; const _addObjPlain = addObj;
@@ -164,4 +164,36 @@ function findSprite(id) { return outlinedSprite('find' + id, id === 'driftwood' 
 function drawFind(c, id, sx, sy, sparkle) {
   const s = findSprite(id); c.drawImage(s, Math.round(sx - s.width / 2), Math.round(sy - s.height + 2));
   if (sparkle) R(c, sx + 3, sy - 7, 1, 1, '#fff');
+}
+
+// ===== Feathers: diagonal, with a bare quill, a shaft, an uneven vane and a split between barbs =====
+// s runs along the shaft (quill bottom-left -> tip top-right), p across it; N is the sprite size
+const FEATHER_LOOK = {
+  gullfeather: { wl: 5, wr: 3, L: '#f6f9fb', B1: '#dbe2ea', D1: '#b8c3ce', M: '#dfe5ec', B2: '#c2ccd6', D2: '#9ea9b6', S: '#ffffff', Q: '#c9bfae', split: 2, split2: 6, tip: 7, T1: '#454c58', T2: '#353b45' },
+  feather: { wl: 3, wr: 3, L: '#fbfcfd', B1: '#e3e9ef', D1: '#c0cad5', M: '#e9eef3', B2: '#ccd5de', D2: '#a9b4c0', S: '#ffffff', Q: '#cfc6b6', split2: 2, tip: 5, T1: '#2c3038', T2: '#1f2228' },
+  rarefeather: { wl: 5, wr: 3, L: '#cfe2ff', B1: '#a8c8f4', D1: '#4a74b8', M: '#7aa4e0', B2: '#5a86c8', D2: '#2e4f8a', S: '#f2f6ff', Q: '#c4cedc', split2: 5, bars: ['#1d3466', '#14264e'], tip: 11, T1: '#ffffff', T2: '#e6eefc' },
+};
+function paintFeather(g, o, N) {
+  const k16 = N / 16, s0 = -(N - 3), vs = Math.round(-8 * k16), ve = N - 4, sc = v => v === undefined ? undefined : Math.round(v * k16);
+  const wlM = Math.max(1, Math.round(o.wl * k16)), wrM = Math.max(1, Math.round(o.wr * k16)), split = sc(o.split), split2 = sc(o.split2), tip = sc(o.tip);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const s = x - y, p = x + y - (N - 1); if (s < s0 || s > ve + 1) continue;
+    let c = null;
+    if (p === 0) c = s < vs ? o.Q : o.S;
+    else if (s >= vs && s <= ve) {
+      const t = (s - vs) / (ve - vs), prof = Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.08)), .55);
+      const wl = Math.round(wlM * prof), wr = Math.round(wrM * prof), k = -p;
+      if (k > 0 && k <= wl) { if (split !== undefined && N >= 16 && Math.abs((s + k) - split) < .6 && k >= 2) continue; c = k === wl ? o.D1 : (s + k) % 3 === 0 ? o.B1 : o.L; }
+      else if (k < 0 && -k <= wr) { const kk = -k; if (split2 !== undefined && N >= 16 && Math.abs((s + kk) - split2) < .6 && kk >= 2) continue; c = kk === wr ? o.D2 : (s + kk) % 3 === 0 ? o.B2 : o.M; }
+      if (c && o.bars && Math.floor((s - vs) / Math.max(2, Math.round(3 * k16))) % 2 === 1) c = k > 0 ? o.bars[0] : o.bars[1];
+      if (c && tip !== undefined && s >= tip) c = k > 0 ? o.T1 : o.T2;
+    }
+    if (c) R(g, x, y, 1, 1, c);
+  }
+}
+{ const _icon2 = icon; icon = function (id) { if (FEATHER_LOOK[id]) { if (!ICON[id]) { const [cv, g] = mk(16, 16); paintFeather(g, FEATHER_LOOK[id], 16); outlinePass(cv, OUTL); ICON[id] = cv; } return ICON[id]; } return _icon2(id); }; }
+// a small feather lying on the ground
+function drawFeatherFind(c, id, sx, sy) {
+  const s = outlinedSprite('fthr' + id, 11, 11, g => paintFeather(g, FEATHER_LOOK[id], 11));
+  c.drawImage(s, Math.round(sx - s.width / 2), Math.round(sy - s.height + 3));
 }
