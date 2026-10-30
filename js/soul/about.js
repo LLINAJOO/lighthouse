@@ -17,11 +17,10 @@ function openInfo(kind) { DOC_ON = true; DOC.id = kind; DOC.after = null; DOC.fl
       ].forEach(t => p.appendChild(hand('p', '', t)));
       p.appendChild(hand('div', 'info-h', 'Управление'));
       p.appendChild(hand('p', '', 'На компьютере: WASD или стрелки — идти, Shift — бегом, E или пробел — действие. I — сумка, J — дневник, M — карта, K — атлас. На телефоне: джойстик слева и кнопка A справа.'));
-      p.appendChild(hand('div', 'info-h', 'Благодарности'));
+      p.appendChild(hand('div', 'info-h', 'Примечания'));
       [
         'Шрифт Monocraft — автор IdreesInc, свободная лицензия SIL Open Font License 1.1.',
         'Музыка и звуки синтезируются прямо в браузере, в игре нет записанных файлов.',
-        'Игра сделана вместе с Claude (Anthropic): код, пиксельные рисунки и тексты.',
       ].forEach(t => p.appendChild(hand('p', 'info-small', t)));
       const fb = hand('button', 'btn', 'Нашли ошибку? Сообщите!'); fb.type = 'button'; fb.onclick = () => openInfo('feedback');
       p.appendChild(fb);
