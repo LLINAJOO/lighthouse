@@ -280,3 +280,46 @@ button:focus-visible,[tabindex]:focus-visible,#souv:focus-visible{outline:3px so
 .pview canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
 .pzoom{display:flex;gap:10px;align-items:center;justify-content:center;color:var(--paper);font-size:14px}
 .pzoom .btn{min-width:44px;font-size:18px}
+
+/* ===== phones: nothing overlaps, nothing runs off the screen ===== */
+#prompt{max-width:calc(100vw - 32px);box-sizing:border-box;white-space:normal;text-align:center;width:max-content}
+#tipbox{left:16px;right:16px;margin:0 auto;width:fit-content;transform:none;box-sizing:border-box}
+#doc .dcard,#ask .card,#panel .card,#scope .scard,#count .cardc{max-height:calc(100dvh - 32px)}
+#morse .mcard{max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box}
+#doc .dcard > .row{position:sticky;bottom:0;padding:8px 0 2px;background:linear-gradient(transparent,rgba(5,8,15,.85) 40%)}
+body.touch #tipbox{bottom:calc(232px + env(safe-area-inset-bottom,0px))}
+@media (max-width:620px){
+  /* toasts go below the keeper, away from the task list; two at a time */
+  /* toasts: a short banner on top, over the clock for a moment; tips sit above the action prompt */
+  #toasts{top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100vw - 32px)}
+  .toast{max-width:100%;box-sizing:border-box}
+  .toast:nth-last-child(n+3){display:none}
+  /* tips show up top over the task list for a moment, so the keeper in the middle stays visible */
+  body.touch #tipbox,#tipbox{top:calc(100px + env(safe-area-inset-top,0px));bottom:auto}
+  #tasks{max-height:calc(50dvh - 116px - 44px);overflow:auto}
+  #tipbox{font-size:14px}
+}
+/* landscape phones: a slim clock, tasks scroll above the joystick, buttons stacked on the right */
+@media (max-height:500px) and (orientation:landscape){
+  #clock{display:flex;gap:10px;align-items:center;padding:4px 10px}
+  #clock .row{gap:8px}
+  #time{font-size:20px}
+  #tasks{top:calc(52px + env(safe-area-inset-top,0px));max-width:250px;max-height:calc(100dvh - 52px - 184px);overflow:auto;font-size:12px;padding:6px 10px}
+  body:not(.touch) #tasks{max-height:calc(100dvh - 70px)}
+  #btns{flex-direction:column;gap:5px}
+  .btn{font-size:13px;padding:4px 8px}
+  #toasts{top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;left:280px;right:110px;width:auto;transform:none}
+  .toast{font-size:13px;padding:4px 10px}
+  .toast:nth-last-child(n+3){display:none}
+  body.touch #prompt{bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 340px)}
+  body.touch #dialog{bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:7}
+  #dialog{padding:8px 12px}
+  #dialog .txt{font-size:15px;min-height:0}
+  #portrait{width:64px;height:64px}
+  body.touch #tipbox,#tipbox{bottom:calc(64px + env(safe-area-inset-bottom,0px));max-width:min(440px,calc(100vw - 340px));font-size:13px;padding:6px 10px}
+  #tipbox canvas{width:24px;height:24px}
+  #scopeC,#countC{max-height:52dvh;width:auto;margin:0 auto}
+  #morse canvas{max-height:40dvh;width:auto}
+  .pframe{width:min(560px,100%,calc(56dvh * 1.5 + 20px))}
+  #title h1{font-size:44px}
+}

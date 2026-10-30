@@ -50,7 +50,7 @@ function showTip() {
   $('#tipT').textContent = t; box.classList.remove('off'); tipT = 9 + t.length / 30;
 }
 function tipTick(dt) {
-  const modal = DOC_ON || MENU.open || !$('#dialog').hidden || !$('#panel').hidden || MORSE_ON || SCOPE_ON || COUNT_ON || !!G.quiet;
+  const modal = DOC_ON || MENU.open || NAMEBOX.open || !$('#dialog').hidden || !$('#panel').hidden || MORSE_ON || SCOPE_ON || COUNT_ON || !!G.quiet;
   $('#tipbox').style.visibility = modal ? 'hidden' : '';
   if (tipT > 0 && !modal) { tipT -= dt; if (tipT <= 0) { tipT = 0; showTip(); } }
   if (G.mode !== 'play') return;
