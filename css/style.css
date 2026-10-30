@@ -363,3 +363,5 @@ body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
 #title h1{text-shadow:-3px 0 0 #1d1a24,3px 0 0 #1d1a24,0 -3px 0 #1d1a24,0 3px 0 #1d1a24,6px 6px 0 #1d1a24}
 #title p{color:#f2e6cc;text-shadow:0 2px 0 #1d1a24,0 0 6px rgba(12,12,34,.8)}
 #title small{color:#d4c6ac;text-shadow:0 1px 0 #1d1a24}
+
+#ask{z-index:20}
