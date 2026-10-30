@@ -274,7 +274,7 @@ function goTo(id, x, y, dir) {
 function exitHouse() { if (G.busy) return; goTo('island', WORLD.lh.x, WORLD.lh.y + 12, 0); }
 function snapCam() { const t = camTarget(); G.cam.x = t.x; G.cam.y = t.y; }
 function camTarget() {
-  const mw = MAP.w * T, mh = MAP.h * T; let x = P.x - VW / 2, y = P.y - 14 - VH / 2;
+  const mw = MAP.w * T, mh = MAP.h * T; let x = Math.round(P.x) - (VW >> 1), y = Math.round(P.y) - 14 - (VH >> 1); // whole pixels, so the keeper never wobbles on screen
   if (MAP.outdoor) { x = clamp(x, -T * 2, mw - VW + T * 2); y = clamp(y, -T * 8, mh - VH + T * 2); }
   else { x = mw < VW ? (mw - VW) / 2 : clamp(x, 0, mw - VW); y = mh < VH ? (mh - VH) / 2 - 6 : clamp(y, -20, mh - VH); }
   return { x, y };
@@ -361,7 +361,8 @@ function update(dt) {
     // NPCs face player when near
     for (const n of G.npcs) { const dx = P.x - n.x, dy = P.y - n.y; if (!n.moving && Math.hypot(dx, dy) < 40) n.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 1 : 2) : (dy < 0 ? 3 : 0); }
     soulTick(dt); updatePlayer(dt); updateFishing(dt); updateCat(dt); atlasTick(); islandTick(dt); DLG.update(dt);
-    const c = camTarget(); G.cam.x = lerp(G.cam.x, c.x, Math.min(1, dt * 8)); G.cam.y = lerp(G.cam.y, c.y, Math.min(1, dt * 8));
+    const c = camTarget(); // follow the keeper exactly while walking (pixel-locked, no diagonal shimmer); glide only on big jumps
+    if (Math.hypot(c.x - G.cam.x, c.y - G.cam.y) < 24) { G.cam.x = c.x; G.cam.y = c.y; } else { G.cam.x = lerp(G.cam.x, c.x, Math.min(1, dt * 8)); G.cam.y = lerp(G.cam.y, c.y, Math.min(1, dt * 8)); }
     updateFx(dt);
     AU.update(dt, { outdoor: MAP.outdoor, high: MAP.high, indoor: MAP.indoor && !MAP.high, rain: G.rain, storm: G.storm, wind: G.wind > 1.2, daylight: G.dark < .3, evening: S.min >= 1020, house: MAP.id === 'house', lamp: MAP.id === 'lamp', shed: MAP.id === 'shed', night: G.dark > .6, fog: G.fog, whales: S.day === 6 && S.min >= 1230 && MAP.outdoor, whaleNear: P.x > 40 * T && P.y < 18 * T });
     AU.setMode(soulMusicMode());
@@ -449,7 +450,7 @@ function draw() {
   if (G.target && $('#dialog').hidden) { const bx = Math.round(G.target.x - cam.x), by = Math.round(G.target.y - cam.y + Math.sin(G.time * 5) * 1.5); R(ctx, bx - 2, by, 5, 1, '#ffc95c'); R(ctx, bx - 1, by + 1, 3, 1, '#ffc95c'); R(ctx, bx, by + 2, 1, 1, '#ffc95c'); }
 }
 function drawHero() {
-  const cam = G.cam, x = Math.round(P.x - cam.x), y = Math.round(P.y - cam.y);
+  const cam = { x: Math.round(G.cam.x), y: Math.round(G.cam.y) }, x = Math.round(P.x) - cam.x, y = Math.round(P.y) - cam.y;
   const acting = !!P.act || P.reading > 0;
   drawPerson(ctx, x, y, LOOKS.hero, { dir: P.dir, frame: P.frame, moving: P.moving, act: acting, t: G.time, sdx: G.sh.dx * 2, sit: !!P.sit, noShadow: !!P.sit });
   if (G.caught && G.time - G.caught.t < 1.8) { const k = G.time - G.caught.t, hop = Math.round(Math.min(1, k * 4) * 8 + Math.sin(k * 9) * (k < .8 ? 1 : 0)); ctx.drawImage(icon(G.caught.id), x - 8, y - 38 - hop); }
