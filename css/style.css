@@ -358,3 +358,8 @@ body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
 .info-ta{width:100%;box-sizing:border-box;font-family:var(--f-body);font-size:15px;padding:8px;border:2px solid #b8a27a;background:#fffaf0;color:#3b2f22;resize:vertical}
 #title .row.small .btn{font-size:15px;padding:6px 14px}
 .paper.info .info-link{justify-self:start;text-decoration:none;display:inline-block}
+/* title over the sunset: a dark outline on the letters and a soft shade behind the text */
+#title::before{content:'';position:absolute;inset:auto 0 0 0;height:62%;background:linear-gradient(transparent,rgba(12,12,34,.55) 45%,rgba(12,12,34,.7));pointer-events:none;z-index:-1}
+#title h1{text-shadow:-3px 0 0 #1d1a24,3px 0 0 #1d1a24,0 -3px 0 #1d1a24,0 3px 0 #1d1a24,6px 6px 0 #1d1a24}
+#title p{color:#f2e6cc;text-shadow:0 2px 0 #1d1a24,0 0 6px rgba(12,12,34,.8)}
+#title small{color:#d4c6ac;text-shadow:0 1px 0 #1d1a24}

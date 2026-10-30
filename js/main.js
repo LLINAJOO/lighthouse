@@ -419,7 +419,7 @@ function updateFx(dt) {
 // ---------- draw world ----------
 function draw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-  if (G.mode === 'title') return drawSide(ctx, VW, VH, G.time, { night: true, islandX: VW * .38, s: 1, title: 1 });
+  if (G.mode === 'title') return drawRideHome(ctx, VW, VH, G.time, .38, { noBoat: true });
   if (G.mode === 'ending') return drawEnding();
   if (G.mode === 'sail') return drawSail();
   const cam = { x: Math.round(G.cam.x), y: Math.round(G.cam.y) };

@@ -50,7 +50,7 @@ function cutterSprite() {
     R(g, 32, 11, 3, 3, '#e86a3a'); R(g, 33, 12, 1, 1, '#e6e0d2');
   });
 }
-function drawRideHome(c, w, h, t, k) {
+function drawRideHome(c, w, h, t, k, o = {}) {
   const hor = Math.round(h * .58), ks = smooth(k);
   c.drawImage(rideSky(w, hor, ks), 0, 0);
   // stars come out as the sun goes down
@@ -94,7 +94,7 @@ function drawRideHome(c, w, h, t, k) {
   R(c, lx + 9 * s, lb - 7 * s, 16 * s, 7 * s, mixHex('#d6cdbb', land, 1 - stripeA * .8)); R(c, lx + 8 * s, lb - 9 * s, 18 * s, 2 * s, mixHex('#6c584a', land, .6)); R(c, lx + 13 * s, lb - 5 * s, 3 * s, 2 * s, '#ffd477');
   // friends on the pier, waving, while they can still be seen
   const who = presentAtFarewell(), cols = { matvey: '#e7b521', lida: '#3c6db0', sonya: '#e9d9b8', nyura: '#6a8a4a' };
-  if (ks < .55) { c.globalAlpha = clamp((.55 - ks) * 4, 0, 1); who.forEach((id, i) => { const px = Math.round(ix + 48 * s + i * 5 * s), py = Math.round(base - 8 * s); R(c, px, py - 4, 2, 4, cols[id] || '#ccc'); R(c, px, py - 6, 2, 2, '#e8c4a0'); if (Math.sin(t * 6 + i * 1.3) > 0) R(c, px + 2, py - 7, 1, 3, '#e8c4a0'); }); c.globalAlpha = 1; }
+  if (ks < .55 && !o.noBoat) { c.globalAlpha = clamp((.55 - ks) * 4, 0, 1); who.forEach((id, i) => { const px = Math.round(ix + 48 * s + i * 5 * s), py = Math.round(base - 8 * s); R(c, px, py - 4, 2, 4, cols[id] || '#ccc'); R(c, px, py - 6, 2, 2, '#e8c4a0'); if (Math.sin(t * 6 + i * 1.3) > 0) R(c, px + 2, py - 7, 1, 3, '#e8c4a0'); }); c.globalAlpha = 1; }
   if ((S.flags.boat | 0) >= 4) { const nx = Math.round(ix + 70 * s), ny = base + 2; R(c, nx - 6 * s, ny - 2, 12 * s, 2, land2); if ((S.flags.boat | 0) >= 5) { R(c, nx, ny - 12 * s, 1, 10 * s, land); c.fillStyle = mixHex('#efe6d6', land, .5); c.beginPath(); c.moveTo(nx + 1, ny - 11 * s); c.lineTo(nx + 7 * s, ny - 3); c.lineTo(nx + 1, ny - 3); c.fill(); } }
   // the beam sweeps round; it gets stronger as it gets dark
   const beamA = clamp(.25 + ks * .9, 0, 1), a = t * .8, dx = Math.cos(a), len = w * (.35 + .65 * Math.abs(dx)), bw = 3 + 18 * (1 - Math.abs(Math.sin(a))), ly = lt - 5 * s;
@@ -105,6 +105,7 @@ function drawRideHome(c, w, h, t, k) {
   // its glitter on the water at dusk
   if (ks > .3) for (let y = hor + 3; y < hor + 26; y += 2) { if (Math.sin(t * 4 + y * 2.1) < .1) continue; c.globalAlpha = (ks - .3) * (1 - (y - hor) / 30); R(c, lx - 2 + Math.sin(y + t * 2) * 2, y, 3 + (y - hor) * .15, 1, '#ffd890'); }
   c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+  if (o.noBoat) return; // the title screen: just the island, the sea and the sunset
   // gulls following the boat for a while
   const bx = Math.round(w * .56), by = Math.round(hor + 30 + Math.sin(t * 1.5) * 1.2);
   if (ks < .7) { c.globalAlpha = clamp((.7 - ks) * 3, 0, 1); for (let i = 0; i < 3; i++) { const gx = Math.round(bx - 40 + i * 22 + Math.sin(t * .7 + i * 2) * 8), gy = Math.round(hor - 24 - i * 9 + Math.sin(t * 1.1 + i) * 4), up = Math.sin(t * 6 + i * 2) > 0; c.fillStyle = mixHex('#fff4e6', '#c9c0d8', ks); R(c, gx, gy, 1, 1, c.fillStyle); R(c, gx - 1, gy - (up ? 1 : 0), 1, 1, c.fillStyle); R(c, gx - 2, gy - (up ? 2 : -1), 1, 1, c.fillStyle); R(c, gx + 1, gy - (up ? 1 : 0), 1, 1, c.fillStyle); R(c, gx + 2, gy - (up ? 2 : -1), 1, 1, c.fillStyle); } c.globalAlpha = 1; }
