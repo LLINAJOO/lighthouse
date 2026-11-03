@@ -175,11 +175,10 @@ $('#pClose').onclick = () => UI.close();
 $('#panel').addEventListener('pointerdown', e => { if (e.target.id === 'panel') UI.close(); });
 $('#bInv').onclick = () => togglePanel('inv'); $('#bJr').onclick = () => togglePanel('jr');
 // sound settings: a little panel under the button — volume and the rain noise
-const sndLabel = () => { $('#bSnd').textContent = !AU.on || AU.vol === 0 ? 'Тихо' : 'Звук'; };
+const sndLabel = () => { $('#bSnd').textContent = 'Звук'; };
 const sndSync = () => document.querySelectorAll('#sndBox .sndR').forEach(r => { const k = r.dataset.k, v = k === 'vol' ? (AU.on ? AU.vol : 0) : AU[k]; r.value = Math.round(v * 100); $('#' + r.id + 'N').textContent = r.value + '%'; });
-$('#bSnd').onclick = e => { e.stopPropagation(); const box = $('#sndBox'); box.hidden = !box.hidden; if (!box.hidden) { sndSync(); $('#sndRain').checked = AU.rainOn; $('#sndVol').focus(); } };
+$('#bSnd').onclick = e => { e.stopPropagation(); const box = $('#sndBox'); box.hidden = !box.hidden; if (!box.hidden) { sndSync(); $('#sndVol').focus(); } };
 document.querySelectorAll('#sndBox .sndR').forEach(r => r.oninput = () => { const v = +r.value / 100; $('#' + r.id + 'N').textContent = r.value + '%'; if (r.dataset.k === 'vol') AU.setVol(v); else AU.setPart(r.dataset.k, v); sndLabel(); });
-$('#sndRain').onchange = () => AU.setRain($('#sndRain').checked);
 $('#sndX').onclick = () => { $('#sndBox').hidden = true; };
 addEventListener('pointerdown', e => { if (!$('#sndBox').hidden && !e.target.closest('#sndBox,#bSnd')) $('#sndBox').hidden = true; });
 sndLabel();

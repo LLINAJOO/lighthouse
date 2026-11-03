@@ -1,7 +1,7 @@
 "use strict";
 // ===================== AUDIO: ambience + generative music =====================
 const AU = {
-  ac: null, on: true, vol: .8, rainOn: true, musicV: 1, sfxV: 1, voiceV: 1, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
+  ac: null, on: true, vol: .8, rainOn: true, musicV: 1, sfxV: 1, voiceV: 1, rainV: 1, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
   init() {
     if (this.ac) { if (this.ac.state === 'suspended') this.ac.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
@@ -27,7 +27,7 @@ const AU = {
   toggle() { this.on = !this.on; this.apply(); return this.on; },
   apply() {
     if (this.master) { const t = this.ac.currentTime; this.master.gain.setTargetAtTime(this.on ? this.vol : 0, t, .1); this.music.gain.setTargetAtTime(.42 * this.musicV, t, .1); this.amb.gain.setTargetAtTime(.55 * this.sfxV, t, .1); this.voiceG.gain.setTargetAtTime(this.voiceV, t, .1); }
-    try { localStorage.setItem('lighthouse-sound-v1', JSON.stringify({ on: this.on, vol: this.vol, rain: this.rainOn, music: this.musicV, sfx: this.sfxV, voice: this.voiceV })); } catch (e) { }
+    try { localStorage.setItem('lighthouse-sound-v1', JSON.stringify({ on: this.on, vol: this.vol, rainV: this.rainV, music: this.musicV, sfx: this.sfxV, voice: this.voiceV })); } catch (e) { }
   },
   setPart(k, v) { this[k] = Math.max(0, Math.min(1, v)); this.apply(); },
   setVol(v) { this.vol = Math.max(0, Math.min(1, v)); this.on = this.vol > 0; this.apply(); },
@@ -78,7 +78,7 @@ const AU = {
     const now = ac.currentTime, st = (n, v) => n.g.gain.setTargetAtTime(v, now, .8);
     const out = env.outdoor ? 1 : env.high ? .7 : .25;
     st(this.nodes.waves, (.18 + .12 * Math.sin(now * .45) + .06 * Math.sin(now * 1.3)) * out * (env.storm ? 1.6 : 1));
-    st(this.nodes.rain, env.rain && this.rainOn ? (env.outdoor || env.high ? .28 : .1) * (env.storm ? 1.5 : 1) : 0);
+    st(this.nodes.rain, env.rain ? (env.outdoor || env.high ? .28 : .1) * (env.storm ? 1.5 : 1) * this.rainV : 0);
     st(this.nodes.wind, (env.wind ? .22 : .03) * (env.outdoor || env.high ? 1 : .3) * (env.storm ? 1.8 : 1));
     this.nodes.wind.f.frequency.setTargetAtTime(300 + 200 * Math.sin(now * .3), now, .5);
     // gulls
@@ -104,4 +104,4 @@ const AU = {
   blip() { if (!this.ac) return; this.tone(880, this.ac.currentTime, .08, 'square', .02, this.amb); },
 };
 
-try { const sv = JSON.parse(localStorage.getItem('lighthouse-sound-v1') || 'null'); if (sv) { AU.on = sv.on !== false; AU.vol = typeof sv.vol === 'number' ? sv.vol : .8; AU.rainOn = sv.rain !== false; for (const [k, f] of [['musicV', 'music'], ['sfxV', 'sfx'], ['voiceV', 'voice']]) if (typeof sv[f] === 'number') AU[k] = sv[f]; } } catch (e) { }
+try { const sv = JSON.parse(localStorage.getItem('lighthouse-sound-v1') || 'null'); if (sv) { AU.on = sv.on !== false; AU.vol = typeof sv.vol === 'number' ? sv.vol : .8; AU.rainOn = sv.rain !== false; if (sv.rain === false) AU.rainV = 0; for (const [k, f] of [['musicV', 'music'], ['sfxV', 'sfx'], ['voiceV', 'voice'], ['rainV', 'rainV']]) if (typeof sv[f] === 'number') AU[k] = sv[f]; } } catch (e) { }
