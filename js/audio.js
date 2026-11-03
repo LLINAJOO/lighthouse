@@ -1,19 +1,20 @@
 "use strict";
 // ===================== AUDIO: ambience + generative music =====================
 const AU = {
-  ac: null, on: true, vol: .8, rainOn: true, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
+  ac: null, on: true, vol: .8, rainOn: true, musicV: 1, sfxV: 1, voiceV: 1, master: null, music: null, amb: null, noise: null, nodes: {}, next: 0, beat: 0, mode: 'title', chordIdx: 0, lastMel: 72, whaleT: 0, gullT: 4, fireT: 0,
   init() {
     if (this.ac) { if (this.ac.state === 'suspended') this.ac.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     const ac = this.ac = new AC();
     this.master = ac.createGain(); this.master.gain.value = this.on ? this.vol : 0; this.master.connect(ac.destination);
     const comp = ac.createDynamicsCompressor(); comp.connect(this.master);
-    this.music = ac.createGain(); this.music.gain.value = .42; this.music.connect(comp);
+    this.music = ac.createGain(); this.music.gain.value = .42 * this.musicV; this.music.connect(comp);
     // simple reverb
     const rev = ac.createConvolver(); const len = ac.sampleRate * 2.6, ir = ac.createBuffer(2, len, ac.sampleRate);
     for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
     rev.buffer = ir; const rg = ac.createGain(); rg.gain.value = .35; this.music.connect(rev); rev.connect(rg); rg.connect(comp); this.rev = rev;
-    this.amb = ac.createGain(); this.amb.gain.value = .55; this.amb.connect(comp);
+    this.amb = ac.createGain(); this.amb.gain.value = .55 * this.sfxV; this.amb.connect(comp);
+    this.voiceG = ac.createGain(); this.voiceG.gain.value = this.voiceV; this.voiceG.connect(comp); // characters' voices, on their own slider
     const nb = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate), nd = nb.getChannelData(0);
     let b = 0; for (let i = 0; i < nd.length; i++) { const w = Math.random() * 2 - 1; b = (b + .02 * w) / 1.02; nd[i] = w * .5 + b * 3; }
     this.noise = nb;
@@ -24,7 +25,11 @@ const AU = {
     this.next = ac.currentTime + .2;
   },
   toggle() { this.on = !this.on; this.apply(); return this.on; },
-  apply() { if (this.master) this.master.gain.setTargetAtTime(this.on ? this.vol : 0, this.ac.currentTime, .1); try { localStorage.setItem('lighthouse-sound-v1', JSON.stringify({ on: this.on, vol: this.vol, rain: this.rainOn })); } catch (e) { } },
+  apply() {
+    if (this.master) { const t = this.ac.currentTime; this.master.gain.setTargetAtTime(this.on ? this.vol : 0, t, .1); this.music.gain.setTargetAtTime(.42 * this.musicV, t, .1); this.amb.gain.setTargetAtTime(.55 * this.sfxV, t, .1); this.voiceG.gain.setTargetAtTime(this.voiceV, t, .1); }
+    try { localStorage.setItem('lighthouse-sound-v1', JSON.stringify({ on: this.on, vol: this.vol, rain: this.rainOn, music: this.musicV, sfx: this.sfxV, voice: this.voiceV })); } catch (e) { }
+  },
+  setPart(k, v) { this[k] = Math.max(0, Math.min(1, v)); this.apply(); },
   setVol(v) { this.vol = Math.max(0, Math.min(1, v)); this.on = this.vol > 0; this.apply(); },
   setRain(on) { this.rainOn = !!on; this.apply(); },
   tone(freq, t, dur, type, vol, dest, attack = .005) {
@@ -95,8 +100,8 @@ const AU = {
   thunder() { if (!this.ac) return; const ac = this.ac, s = ac.createBufferSource(), g = ac.createGain(), f = ac.createBiquadFilter(), t = ac.currentTime + .6 + Math.random(); s.buffer = this.noise; f.type = 'lowpass'; f.frequency.value = 180; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.9, t + .1); g.gain.exponentialRampToValueAtTime(.001, t + 2.8); s.connect(f); f.connect(g); g.connect(this.amb); s.start(t, 0, 3); },
   whale(v) { const ac = this.ac, t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; const f0 = 180 + Math.random() * 120; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f0 * 1.6, t + 1.4); o.frequency.linearRampToValueAtTime(f0 * .8, t + 3); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .8); g.gain.linearRampToValueAtTime(0, t + 3.2); o.connect(g); g.connect(this.music); g.connect(this.rev); o.start(t); o.stop(t + 3.3); },
   chime() { if (!this.ac) return; const t = this.ac.currentTime; [76, 81, 88].forEach((n, i) => this.piano(n, t + i * .09, .09, 1.4)); },
-  voice(freq, type, vol) { if (!this.ac) return; const t = this.ac.currentTime, f = freq * (1 + (Math.random() - .5) * .08); const o = this.ac.createOscillator(), g = this.ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + .035); g.gain.linearRampToValueAtTime(0, t + .055); o.connect(g); g.connect(this.amb); o.start(t); o.stop(t + .07); },
+  voice(freq, type, vol) { if (!this.ac) return; const t = this.ac.currentTime, f = freq * (1 + (Math.random() - .5) * .08); const o = this.ac.createOscillator(), g = this.ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + .035); g.gain.linearRampToValueAtTime(0, t + .055); o.connect(g); g.connect(this.voiceG); o.start(t); o.stop(t + .07); },
   blip() { if (!this.ac) return; this.tone(880, this.ac.currentTime, .08, 'square', .02, this.amb); },
 };
 
-try { const sv = JSON.parse(localStorage.getItem('lighthouse-sound-v1') || 'null'); if (sv) { AU.on = sv.on !== false; AU.vol = typeof sv.vol === 'number' ? sv.vol : .8; AU.rainOn = sv.rain !== false; } } catch (e) { }
+try { const sv = JSON.parse(localStorage.getItem('lighthouse-sound-v1') || 'null'); if (sv) { AU.on = sv.on !== false; AU.vol = typeof sv.vol === 'number' ? sv.vol : .8; AU.rainOn = sv.rain !== false; for (const [k, f] of [['musicV', 'music'], ['sfxV', 'sfx'], ['voiceV', 'voice']]) if (typeof sv[f] === 'number') AU[k] = sv[f]; } } catch (e) { }

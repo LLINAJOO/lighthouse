@@ -365,3 +365,6 @@ body.qcut #hud,body.qcut #prompt,body.qcut #toasts{transition:none!important}
 #title small{color:#d4c6ac;text-shadow:0 1px 0 #1d1a24}
 
 #ask{z-index:20}
+
+#sndBox{width:240px}
+#sndBox .sndR{width:100%;accent-color:var(--lamp);height:22px;margin:0 0 4px}

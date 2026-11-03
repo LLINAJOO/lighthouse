@@ -41,7 +41,7 @@
     <button class="btn" id="bSnd" type="button">Звук</button>
   </div>
 </div>
-<div id="sndBox" class="pix" hidden role="dialog" aria-label="Звук"><label class="srow" for="sndVol"><span>Громкость</span><b id="sndVolN">80%</b></label><input id="sndVol" type="range" min="0" max="100" step="5" value="80"><label class="srow chk"><input id="sndRain" type="checkbox" checked><span>Шум дождя</span></label><button class="btn" id="sndX" type="button">Готово</button></div>
+<div id="sndBox" class="pix" hidden role="dialog" aria-label="Звук"><label class="srow" for="sndVol"><span>Общая громкость</span><b id="sndVolN">100%</b></label><input id="sndVol" class="sndR" data-k="vol" type="range" min="0" max="100" step="5" value="100"><label class="srow" for="sndMus"><span>Музыка</span><b id="sndMusN">100%</b></label><input id="sndMus" class="sndR" data-k="musicV" type="range" min="0" max="100" step="5" value="100"><label class="srow" for="sndSfx"><span>Звуки острова</span><b id="sndSfxN">100%</b></label><input id="sndSfx" class="sndR" data-k="sfxV" type="range" min="0" max="100" step="5" value="100"><label class="srow" for="sndVoice"><span>Голоса</span><b id="sndVoiceN">100%</b></label><input id="sndVoice" class="sndR" data-k="voiceV" type="range" min="0" max="100" step="5" value="100"><label class="srow chk"><input id="sndRain" type="checkbox" checked><span>Шум дождя</span></label><button class="btn" id="sndX" type="button">Готово</button></div>
 <div id="prompt" class="pix" hidden></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 <div id="dialog" class="pix" hidden><canvas id="portrait" width="48" height="48"></canvas><div><div class="who" id="dWho"></div><div class="txt" id="dTxt"></div></div><span class="more">▼</span></div>
